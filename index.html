@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Space Evader</title>
+</head>
+
+<body style="margin:0px;padding:0px;overflow:hidden;">
+
+
+    <script>
+        function parseCommand(input = "") {
+            return JSON.parse(input);
+        }
+
+        window.onload = function () {
+            var camera, scene, renderer;
+            var cameraControls;
+            var group;
+
+            /**
+            * @param {string} modelPath
+            * @param {string} modelName
+            * @param {string} texturePath
+            * @param {string} textureName
+            * @param {function(THREE.Mesh): void} onload
+            * @return {void}
+            */
+            
+            function loadOBJModel(modelPath, modelName, texturePath, textureName, onload){
+                var mtlLoader = new THREE.MTLLoader()
+                mtlLoader.setPath(texturePath)
+                mtlLoader.load(textureName, function(materials){
+
+                        materials.preload();
+
+                        var objLoader = new THREE.OBJLoader()
+                        objLoader.setPath(modelPath)
+                        objLoader.setMaterials(materials)
+                        objLoader.load(modelName, function(object){
+                                onload(object);
+                            }, function () {} , function (e){console.log("Error loading model"); console.log(e); });
+                    });
+            }
+
+            function init() {
+                camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+                cameraControls = new THREE.OrbitControls(camera);
+                camera.position.z = 10;
+                camera.position.y = 0;
+                camera.position.x = 100;
+                cameraControls.update();
+                scene = new THREE.Scene();
+
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight + 5);
+                document.body.appendChild(renderer.domElement);
+
+                window.addEventListener('resize', onWindowResize, false);
+
+                var skyboxGeometry = new THREE.BoxGeometry(1000, 1000, 1000);
+                var skyboxMaterials = [
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/skybox/skybox.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/skybox/skybox.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/skybox/skybox.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/skybox/skybox.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/skybox/skybox.png"), side: THREE.DoubleSide}),
+                    new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/skybox/skybox.png"), side: THREE.DoubleSide})
+                ];
+                var skybox = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
+
+                scene.add(skybox);
+
+                var geometry = new THREE.PlaneGeometry(1000, 30, 100);
+                var material = new THREE.MeshBasicMaterial({ color: 0x404040, side: THREE.DoubleSide });
+                var plane = new THREE.Mesh(geometry, material);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.x = 100;
+                plane.position.y = -0.5;
+                plane.position.z = 10;
+                scene.add(plane);
+
+                var light = new THREE.AmbientLight(0x404040);
+                light.intensity = 4;
+                scene.add(light);
+            }
+
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            
+
+            //Later wat parameters erin doen voor bv: moeilijksheidgraad etc.
+            function MakeObject(){
+                group = new THREE.Group();
+
+                //Het laden van het model en de materials(textures)
+                var mtlLoader = new THREE.MTLLoader();
+                mtlLoader.setTexturePath("models/Obstacles/");
+                mtlLoader.setPath("models/Obstacles/");
+                mtlLoader.load("Boulder.mtl", function(materials){
+                    materials.preload();
+
+                    var objLoader = new THREE.OBJLoader()
+                    objLoader.setMaterials(materials)
+                    objLoader.setPath("models/Obstacles/")
+                    objLoader.load("Boulder.obj", function(geometry){
+                        //hier kunnen we later wel aanpassen hoeveel objecten er zijn(moeilijksheidgraad)
+                        for(var i = 0; i < 250; i++){
+                            var obstacle = geometry.clone();
+                            obstacle.position.set(Math.random() * -200, Math.random() * 10, Math.random() * 50);
+                            obstacle.scale.set(1, 1, 1);                    
+                            group.add(obstacle);    
+                        }
+                    });
+                });
+
+                scene.add(group);
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+                cameraControls.update();
+                group.position.x += 0.5;
+                if (group.position.x > 300){
+                    scene.remove(group);
+                    MakeObject();
+                }
+                renderer.render(scene, camera);
+            }
+
+            init();
+            MakeObject();
+            animate();
+        }
+    </script>
+
+    <script src="three.min.js"></script>
+    <script src="OrbitControls.js"></script>
+    <script src="MTLLoader.js"></script>
+    <script src="OBJLoader.js"></script>
+</body>
+
+</html>
