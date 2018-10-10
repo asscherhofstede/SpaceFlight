@@ -1,15 +1,6 @@
-<html>
-<head>
-    <script src="scripts/three.js"></script>
-    <script src="scripts/OrbitControls.js"></script> <!-- voor camera -->
-    <script src="scripts/OBJLoader.js"></script> <!-- voor het laden van 3d modellen -->
-    <script src="scripts/MTLLoader.js"></script> 
-</head>
-
-<body>
-<script>
-	var scene = new THREE.Scene();
-	var spaceship = new THREE.Group();
+alert("");
+var scene = new THREE.Scene();
+var spaceship = new THREE.Group();
 	
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 var renderer = new THREE.WebGLRenderer();
@@ -23,17 +14,10 @@ var skyboxgeo = new THREE.SphereGeometry(500, 32, 32);
         var skybox = new THREE.Mesh(skyboxgeo, skyboxmat);
         scene.add(skybox);
 
-//schipvariabelen
-var schipKeuze = prompt("voer een 1 in voor een generiek ruimteschip, 2 voor een spaceshuttle en 3 voor een vliegtuigje");
-var draaisnelheid = 0; //de snelheid van de rotatie
 
-//bewegingsvariabelen
-var moveRight = false;
-var moveLeft = false;
-var moveUp = false;
-var moveDown = false;
-var rotateLeft = false;
-var rotateRight = false;
+//schipvariabelen
+var schipKeuze = 3;
+var draaisnelheid = 0; //de snelheid van de rotatie
 
 if(schipKeuze == 1){ // het eerste ruimteschip
     
@@ -51,7 +35,7 @@ new THREE.MTLLoader()
 							object.scale.x = a;
 							object.scale.y = a;
 							object.scale.z = a;
-                            draaisnelheid = 0.005;
+                            draaisnelheid = 0.2;
 							spaceship.add( object );
 						} );
 				} );
@@ -75,7 +59,7 @@ new THREE.MTLLoader()
                             object.rotation.x = -1.413717;
                             object.rotation.y = 0; //niet mee prutsen
                             object.rotation.z = Math.PI;
-                            draaisnelheid = 0.005;
+                            draaisnelheid = 0.075;
 							spaceship.add( object );
 						} );
 				} );
@@ -94,13 +78,14 @@ new THREE.MTLLoader()
 							object.scale.x = a;
 							object.scale.y = a;
 							object.scale.z = a;
-                            draaisnelheid = 0.005;
+                            draaisnelheid = 0.5;
                             object.position.z += 10;
                             object.rotation.y = -1.57;
 							spaceship.add( object );
 						} );
 				} );
 }
+
 
 //scene.add();
 camera.position.x = 0;
@@ -115,96 +100,42 @@ scene.add( spaceship );
 //camera.position.y = 1;
 //camera.position.z = 20;
 
-var light = new THREE.AmbientLight( 0x404040 ); 
+var light = new THREE.AmbientLight( 0x404040 ); // soft white light
 scene.add( light );
 
+// White directional light at 70% intensity shining from the top.
 var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.7 );
 scene.add( directionalLight );
 
+// movement
 document.addEventListener("keydown", onDocumentKeyDown, false);
 function onDocumentKeyDown(event) {
     var keyCode = event.which;
     
     if (keyCode == 90) {  //z key voor rotatie over rechts
-        rotateRight = true;
+        spaceship.rotation.z += draaisnelheid;
 		
     } else if (keyCode == 88) { // x key voor rotatie over links
-        rotateLeft = true;
+        spaceship.rotation.z -= draaisnelheid;
         
     } else if (keyCode == 37) { // left key voor bewegen naar links
-        moveLeft = true;
+        spaceship.position.x += 1;
         
     } else if (keyCode == 39) { // right key voor bewegen naar rechts
-        moveRight = true;
+        spaceship.position.x -= 1;
         
     } else if (keyCode == 38) { // up key voor naar boven
-        moveUp = true;
+        spaceship.position.y += 1;
 		
 	} else if (keyCode == 40) { //down key voor naar beneden
-        moveDown = true;
+        spaceship.position.y -= 1;
 	}
-    
-    render();
-};
-
-document.addEventListener("keyup", onDocumentKeyUp, false);
-function onDocumentKeyUp(event) {
-    var keyCode = event.which;
-    
-    if (keyCode == 90) {  //z key voor rotatie over rechts
-        rotateRight = false;
-		
-    } else if (keyCode == 88) { // x key voor rotatie over links
-        rotateLeft = false;
-        
-    } else if (keyCode == 37) { // left key voor bewegen naar links
-        moveLeft = false;
-        
-    } else if (keyCode == 39) { // right key voor bewegen naar rechts
-        moveRight = false;
-        
-    } else if (keyCode == 38) { // up key voor naar boven
-        moveUp = false;
-		
-	} else if (keyCode == 40) { //down key voor naar beneden
-        moveDown = false;
-	}
-    
     render();
 };
 
 var render = function() {
-requestAnimationFrame(render);
-
-if(moveRight == true)
-{
-	spaceship.position.x -= 0.01;
-}
-if(moveLeft == true)
-{
-	spaceship.position.x += 0.01;
-}
-if(moveUp == true)
-{
-	spaceship.position.y += 0.01;
-}
-if(moveDown == true)
-{
-	spaceship.position.y -= 0.01;
-}
-if(rotateRight == true)
-{
-	spaceship.rotation.z += draaisnelheid;
-}
-if(rotateLeft == true)
-{
-	spaceship.rotation.z -= draaisnelheid;
-}
-
+  requestAnimationFrame(render);
   renderer.render(scene, camera);
 };
 
 render()
-</script>
-</body>
-</html>
