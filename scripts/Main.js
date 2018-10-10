@@ -1,11 +1,7 @@
 window.onload = function () {
-    var scene = new THREE.Scene();
     var spaceshipModel = new THREE.Group();
 
-    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     var renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
     // end template here
 
     //skybox
@@ -16,7 +12,7 @@ window.onload = function () {
 
     //schipvariabelen
     var shipChoice = prompt("voer een 1 in voor een generiek ruimteschip, 2 voor een spaceshuttle en 3 voor een vliegtuigje");
-    var rotationSpeed = 0; //de snelheid van de rotatie
+    var rotationSpeed = 0.005; //de snelheid van de rotatie
 
     //bewegingsvariabele
     var moveRight = false;
@@ -26,20 +22,78 @@ window.onload = function () {
     var rotateLeft = false;
     var rotateRight = false;
 
-    //scene.add();
-    camera.position.x = 0;
-    camera.position.y = 1.7;
-    camera.position.z = 9;
-    camera.rotation.y = 3;
+    function init() {
+        scene = new THREE.Scene();
 
-    scene.add(camera);
-    scene.add(spaceshipModel);
+        // camera 
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+        cameraControls = new THREE.OrbitControls(camera);
+        camera.position.set(10, 0, 100);
+        cameraControls.update();
+        scene.add(camera);
 
-    var light = new THREE.AmbientLight(0x404040);
-    scene.add(light);
+        document.addEventListener("keydown", onDocumentKeyDown, false);
+        document.addEventListener("keyup", onDocumentKeyUp, false);
 
-    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-    scene.add(directionalLight);
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight + 5);
+        document.body.appendChild(renderer.domElement);
+
+        window.addEventListener('resize', onWindowResize, false);
+
+        scene.add(spaceshipModel);
+
+        var light = new THREE.AmbientLight(0x404040);
+        scene.add(light);
+
+        //var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+        // scene.add(directionalLight);
+
+
+        var geometry = new THREE.PlaneGeometry(1000, 30, 100);
+        var material = new THREE.MeshBasicMaterial({ color: 0x404040, side: THREE.DoubleSide });
+        var plane = new THREE.Mesh(geometry, material);
+        plane.rotation.x = Math.PI / 2.0;
+        plane.position.x = 100;
+        plane.position.y = -0.5;
+        plane.position.z = 10;
+        scene.add(plane);
+
+        spaceship(shipChoice);
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function MakeObject() {
+        group = new THREE.Group();
+
+        //Het laden van het model en de materials(textures)
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setTexturePath("models/Obstacles/");
+        mtlLoader.setPath("models/Obstacles/");
+        mtlLoader.load("Boulder.mtl", function (materials) {
+            materials.preload();
+
+            var objLoader = new THREE.OBJLoader()
+            objLoader.setMaterials(materials)
+            objLoader.setPath("models/Obstacles/")
+            objLoader.load("Boulder.obj", function (geometry) {
+                //hier kunnen we later wel aanpassen hoeveel objecten er zijn(moeilijksheidgraad)
+                for (var i = 0; i < 250; i++) {
+                    var obstacle = geometry.clone();
+                    obstacle.position.set(Math.random() * -200, Math.random() * 10, Math.random() * 50);
+                    obstacle.scale.set(1, 1, 1);
+                    group.add(obstacle);
+                }
+            });
+        });
+        scene.add(group);
+    }
 
     document.addEventListener("keydown", onDocumentKeyDown, false);
     function onDocumentKeyDown(event) {
@@ -64,7 +118,7 @@ window.onload = function () {
             moveDown = true;
         }
 
-        render();
+        animate();
     };
 
     document.addEventListener("keyup", onDocumentKeyUp, false);
@@ -90,37 +144,43 @@ window.onload = function () {
             moveDown = false;
         }
 
-        render();
+        animate();
     };
 
-    var render = function () {
-        requestAnimationFrame(render);
+    function animate() {
+        requestAnimationFrame(animate);
+        cameraControls.update();
+        group.position.x += 0.5;
+        if (group.position.x > 300) {
+            scene.remove(group);
+            MakeObject();
+        }
 
         if (moveRight == true) {
-            spaceship.position.x -= 0.01;
+            spaceshipModel.position.x -= 0.01;
         }
         if (moveLeft == true) {
-            spaceship.position.x += 0.01;
+            spaceshipModel.position.x += 0.01;
         }
         if (moveUp == true) {
-            spaceship.position.y += 0.01;
+            spaceshipModel.position.y += 0.01;
         }
         if (moveDown == true) {
-            spaceship.position.y -= 0.01;
+            spaceshipModel.position.y -= 0.01;
         }
         if (rotateRight == true) {
-            spaceship.rotation.z += rotationSpeed;
+            spaceshipModel.rotation.z += rotationSpeed;
         }
         if (rotateLeft == true) {
-            spaceship.rotation.z -= rotationSpeed;
+            spaceshipModel.rotation.z -= rotationSpeed;
         }
 
         renderer.render(scene, camera);
-    };
+    }
 
-    function spaceship() {
-        var scale, rotateSpeed = 0.005, shipX = 0, shipY = 0, shipZ = 20, path, obj, mtl, shipRotationX = 0, shipRotationY = 0, shipRotationZ = 0;
-        switch (shipChoice) {
+    function spaceship(choice) {
+        var scale, shipX = 0, shipY = 0, shipZ = 20, path, obj, mtl, shipRotationX = 0, shipRotationY = 0, shipRotationZ = 0;
+        switch (choice) {
             case 1:
                 scale = 0.01;
                 path = 'models/spaceship/';
@@ -166,11 +226,12 @@ window.onload = function () {
                         object.position.set(shipX, shipY, shipZ);
                         object.scale.set(scale, scale, scale);
                         object.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
-                        rotationSpeed = rotateSpeed;
                         spaceshipModel.add(object);
                     });
             });
     }
 
-    render();
+    init();
+    MakeObject();
+    animate();
 };
