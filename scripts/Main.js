@@ -27,9 +27,11 @@ window.onload = function () {
 
         // camera 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-        cameraControls = new THREE.OrbitControls(camera);
-        camera.position.set(10, 0, 100);
-        cameraControls.update();
+        //cameraControls = new THREE.OrbitControls(camera);
+        camera.position.set(103, 5, 10);
+        camera.rotation.y = Math.PI / 2;
+        //camera.rotation.z = Math.PI / 2;
+        //cameraControls.update();
         scene.add(camera);
 
         document.addEventListener("keydown", onDocumentKeyDown, false);
@@ -117,8 +119,6 @@ window.onload = function () {
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = true;
         }
-
-        animate();
     };
 
     document.addEventListener("keyup", onDocumentKeyUp, false);
@@ -143,13 +143,11 @@ window.onload = function () {
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = false;
         }
-
-        animate();
     };
 
     function animate() {
         requestAnimationFrame(animate);
-        cameraControls.update();
+        //cameraControls.update();
         group.position.x += 0.5;
         if (group.position.x > 300) {
             scene.remove(group);
@@ -157,10 +155,10 @@ window.onload = function () {
         }
 
         if (moveRight == true) {
-            spaceshipModel.position.x -= 0.01;
+            spaceshipModel.position.z -= 0.01;
         }
         if (moveLeft == true) {
-            spaceshipModel.position.x += 0.01;
+            spaceshipModel.position.z += 0.01;
         }
         if (moveUp == true) {
             spaceshipModel.position.y += 0.01;
@@ -179,25 +177,29 @@ window.onload = function () {
     }
 
     function spaceship(choice) {
-        var scale, shipX = 0, shipY = 0, shipZ = 20, path, obj, mtl, shipRotationX = 0, shipRotationY = 0, shipRotationZ = 0;
+        var scale, shipX = 0, shipY = 0, shipZ = 0, path, obj, mtl, shipRotationX = 0, shipRotationY = 0, shipRotationZ = 0;
         switch (choice) {
-            case 1:
+            case '1':
                 scale = 0.01;
                 path = 'models/spaceship/';
                 obj = 'spaceship.obj';
                 mtl = 'spaceship.mtl';
+                shipX = 85;
+                shipY = 1;
+                shipZ = 10;
+                shipRotationY = (Math.PI / 2) * 3;
                 break;
 
-            case 2:
+            case '2':
                 scale = 0.5;
                 path = 'models/spaceshuttle/';
-                obj = 'spaceshuttle.obj';
-                mtl = 'spaceshuttle.mtl';
+                obj = 'SpaceShuttle.obj';
+                mtl = 'SpaceShuttle.mtl';
                 shipRotationX = -1.413717;
                 shipRotationZ = Math.PI;
                 break;
 
-            case 3:
+            case '3':
                 scale = 6;
                 path = 'models/plane/';
                 obj = 'plane.obj';
@@ -223,10 +225,10 @@ window.onload = function () {
                     .setMaterials(materials)
                     .setPath(path)
                     .load(obj, function (object) {
-                        object.position.set(shipX, shipY, shipZ);
-                        object.scale.set(scale, scale, scale);
-                        object.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                         spaceshipModel.add(object);
+                        spaceshipModel.position.set(shipX, shipY, shipZ);
+                        spaceshipModel.scale.set(scale, scale, scale);
+                        spaceshipModel.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                     });
             });
     }
