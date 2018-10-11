@@ -11,7 +11,8 @@ window.onload = function () {
     // scene.add(skybox);
 
     //schipvariabelen
-    var shipChoice = prompt("voer een 1 in voor een generiek ruimteschip, 2 voor een spaceshuttle en 3 voor een vliegtuigje");
+    //var shipChoice = prompt("voer een 1 in voor een generiek ruimteschip, 2 voor een spaceshuttle en 3 voor een vliegtuigje");
+    var shipChoice = '1';
     var rotationSpeed = 0.005; //de snelheid van de rotatie
 
     //bewegingsvariabele
@@ -26,13 +27,16 @@ window.onload = function () {
         scene = new THREE.Scene();
 
         // camera 
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000000);
         //cameraControls = new THREE.OrbitControls(camera);
-        camera.position.set(103, 5, 10);
-        camera.rotation.y = Math.PI / 2;
+        //camera.position.set(103, 5, 10);
+       
         //camera.rotation.z = Math.PI / 2;
+        camera.position.set(0, 250, -500);
+        camera.rotation.y = 180 * (Math.PI / 180);
         //cameraControls.update();
-        scene.add(camera);
+        //scene.add(camera);
+        spaceshipModel.add(camera);
 
         document.addEventListener("keydown", onDocumentKeyDown, false);
         document.addEventListener("keyup", onDocumentKeyUp, false);
@@ -155,16 +159,16 @@ window.onload = function () {
         }
 
         if (moveRight == true) {
-            spaceshipModel.position.z -= 0.01;
+            spaceshipModel.position.z -= 0.1;
         }
         if (moveLeft == true) {
-            spaceshipModel.position.z += 0.01;
+            spaceshipModel.position.z += 0.1;
         }
         if (moveUp == true) {
-            spaceshipModel.position.y += 0.01;
+            spaceshipModel.position.y += 0.1;
         }
         if (moveDown == true) {
-            spaceshipModel.position.y -= 0.01;
+            spaceshipModel.position.y -= 0.1;
         }
         if (rotateRight == true) {
             spaceshipModel.rotation.z += rotationSpeed;
@@ -205,7 +209,7 @@ window.onload = function () {
                 obj = 'plane.obj';
                 mtl = 'plane.mtl';
                 shipZ = 10;
-                shipRotationY = -1.57;
+                shipRotationY = 180 * (Math.PI / 180);
                 break;
 
             default:
