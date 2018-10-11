@@ -29,8 +29,7 @@ window.onload = function () {
     //spelerscore
     var playerScore = 1;
     var a = 1;
-    function updateScore()
-    {
+    function updateScore() {
         a += (0.25 * pause);
         playerScore = Math.round(a);
         //tekst
@@ -52,7 +51,7 @@ window.onload = function () {
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000000);
         //cameraControls = new THREE.OrbitControls(camera);
         //camera.position.set(103, 5, 10);
-       
+
         //camera.rotation.z = Math.PI / 2;
         camera.position.set(0, 250, -500);
         camera.rotation.y = 180 * (Math.PI / 180);
@@ -70,7 +69,7 @@ window.onload = function () {
 
         window.addEventListener('resize', onWindowResize, false);
 
-       
+
         scene.add(spaceshipModel);
 
         var light = new THREE.AmbientLight(0x404040);
@@ -146,13 +145,13 @@ window.onload = function () {
 
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = true;
-        }else if (keyCode == 80) { //down key voor naar beneden
-            if(pause == 1){
+        } else if (keyCode == 80) { //down key voor naar beneden
+            if (pause == 1) {
                 pause = 0;
-            }else {
+            } else {
                 pause = 1;
             }
-    }
+        }
     };
 
     document.addEventListener("keyup", onDocumentKeyUp, false);
@@ -180,35 +179,42 @@ window.onload = function () {
     };
 
     function animate() {
-        requestAnimationFrame(animate);
-        //cameraControls.update();
-        updateScore();
-        
-        group.position.x += 0.5 * pause;
-        if (group.position.x > 300) {
-            scene.remove(group);
-            MakeObject();
-        }
+        setTimeout(function () {
 
-        if (moveRight == true) {
-            spaceshipModel.position.z -= 0.2 * pause;
-        }
-        if (moveLeft == true) {
-            spaceshipModel.position.z += 0.2 * pause;
-        }
-        if (moveUp == true) {
-            spaceshipModel.position.y += 0.2 * pause;
-        }
-        if (moveDown == true) {
-            spaceshipModel.position.y -= 0.2 * pause;
-        }
-        if (rotateRight == true) {
-            spaceshipModel.rotation.z += rotationSpeed * pause;
-        }
-        if (rotateLeft == true) {
-            spaceshipModel.rotation.z -= rotationSpeed * pause;
-        }
+            requestAnimationFrame(animate);
 
+
+
+            //cameraControls.update();
+            updateScore();
+
+            group.position.x += 0.5 * pause;
+            if (group.position.x > 300) {
+                scene.remove(group);
+                MakeObject();
+            }
+
+            if (moveRight == true) {
+                spaceshipModel.position.z -= 0.2 * pause;
+            }
+            if (moveLeft == true) {
+                spaceshipModel.position.z += 0.2 * pause;
+            }
+            if (moveUp == true) {
+                spaceshipModel.position.y += 0.2 * pause;
+            }
+            if (moveDown == true) {
+                spaceshipModel.position.y -= 0.2 * pause;
+            }
+            if (rotateRight == true) {
+                spaceshipModel.rotation.z += rotationSpeed * pause;
+            }
+            if (rotateLeft == true) {
+                spaceshipModel.rotation.z -= rotationSpeed * pause;
+            }
+        }, 1000 / 60);
+
+        //renderer.render();
         renderer.render(scene, camera);
     }
 
