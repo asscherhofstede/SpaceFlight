@@ -13,7 +13,10 @@ window.onload = function () {
     //schipvariabelen
     //var shipChoice = prompt("voer een 1 in voor een generiek ruimteschip, 2 voor een spaceshuttle en 3 voor een vliegtuigje");
     var shipChoice = '1';
-    var rotationSpeed = 0.005; //de snelheid van de rotatie
+    var rotationSpeed = 0.05; //de snelheid van de rotatie
+
+    //pause
+    var pause = 1;
 
     //bewegingsvariabele
     var moveRight = false;
@@ -22,6 +25,25 @@ window.onload = function () {
     var moveDown = false;
     var rotateLeft = false;
     var rotateRight = false;
+
+    //spelerscore
+    var playerScore = 1;
+    var a = 1;
+    function updateScore()
+    {
+        a += (0.25 * pause);
+        playerScore = Math.round(a);
+        //tekst
+        var text2 = document.createElement('div');
+        text2.style.position = 'absolute';
+        text2.style.width = 100;
+        text2.style.height = 20;
+        text2.style.backgroundColor = "turquoise";
+        text2.innerHTML = playerScore;
+        text2.style.top = 50 + 'px';
+        text2.style.left = 200 + 'px';
+        document.body.appendChild(text2);
+    }
 
     function init() {
         scene = new THREE.Scene();
@@ -48,6 +70,7 @@ window.onload = function () {
 
         window.addEventListener('resize', onWindowResize, false);
 
+       
         scene.add(spaceshipModel);
 
         var light = new THREE.AmbientLight(0x404040);
@@ -55,6 +78,7 @@ window.onload = function () {
 
         //var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
         // scene.add(directionalLight);
+
 
 
         var geometry = new THREE.PlaneGeometry(1000, 30, 100);
@@ -122,7 +146,13 @@ window.onload = function () {
 
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = true;
-        }
+        }else if (keyCode == 80) { //down key voor naar beneden
+            if(pause == 1){
+                pause = 0;
+            }else {
+                pause = 1;
+            }
+    }
     };
 
     document.addEventListener("keyup", onDocumentKeyUp, false);
@@ -152,29 +182,31 @@ window.onload = function () {
     function animate() {
         requestAnimationFrame(animate);
         //cameraControls.update();
-        group.position.x += 0.5;
+        updateScore();
+        
+        group.position.x += 0.5 * pause;
         if (group.position.x > 300) {
             scene.remove(group);
             MakeObject();
         }
 
         if (moveRight == true) {
-            spaceshipModel.position.z -= 0.1;
+            spaceshipModel.position.z -= 0.2 * pause;
         }
         if (moveLeft == true) {
-            spaceshipModel.position.z += 0.1;
+            spaceshipModel.position.z += 0.2 * pause;
         }
         if (moveUp == true) {
-            spaceshipModel.position.y += 0.1;
+            spaceshipModel.position.y += 0.2 * pause;
         }
         if (moveDown == true) {
-            spaceshipModel.position.y -= 0.1;
+            spaceshipModel.position.y -= 0.2 * pause;
         }
         if (rotateRight == true) {
-            spaceshipModel.rotation.z += rotationSpeed;
+            spaceshipModel.rotation.z += rotationSpeed * pause;
         }
         if (rotateLeft == true) {
-            spaceshipModel.rotation.z -= rotationSpeed;
+            spaceshipModel.rotation.z -= rotationSpeed * pause;
         }
 
         renderer.render(scene, camera);
