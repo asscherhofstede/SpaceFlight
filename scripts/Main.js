@@ -1,7 +1,11 @@
 window.onload = function () {
+    
+
     var spaceshipModel = new THREE.Group();
 
     var renderer = new THREE.WebGLRenderer();
+
+    var audio;
     // end template here
 
     //skybox
@@ -33,7 +37,7 @@ window.onload = function () {
         a += (0.25 * pause);
         playerScore = Math.round(a);
         //tekst
-        var text2 = document.createElement('div');
+        var text2 = document.getElementById("score");
         text2.style.position = 'absolute';
         text2.style.width = 100;
         text2.style.height = 20;
@@ -90,6 +94,8 @@ window.onload = function () {
         scene.add(plane);
 
         spaceship(shipChoice);
+
+        playMusic();
     }
 
     function onWindowResize() {
@@ -148,8 +154,10 @@ window.onload = function () {
         } else if (keyCode == 80) { //down key voor naar beneden
             if (pause == 1) {
                 pause = 0;
+                pauseMusic();
             } else {
                 pause = 1;
+                resumeMusic();
             }
         }
     };
@@ -273,6 +281,25 @@ window.onload = function () {
                         spaceshipModel.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                     });
             });
+    }
+
+    function playMusic() {
+        audio = new Audio('music/500miles.mp3');
+        audio.volume = 0.3;
+        console.log(audio);
+        audio.loop = true;
+        audio.play();
+        
+    }
+
+    function pauseMusic() {
+        console.log("pause");
+        audio.pause();
+    }
+
+    function resumeMusic() {
+        console.log("play");        
+        audio.play();
     }
 
     init();
