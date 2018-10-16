@@ -76,7 +76,7 @@ window.onload = function () {
 
         // camera 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000000);
-        cameraControls = new THREE.OrbitControls(camera);
+        //cameraControls = new THREE.OrbitControls(camera);
         //camera.position.set(103, 5, 10);
 
         //camera.rotation.z = Math.PI / 2;
