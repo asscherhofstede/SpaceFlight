@@ -163,8 +163,10 @@ window.onload = function () {
         } else if (keyCode == 80) { //down key voor naar pause
             if (pause == 1) {
                 pause = 0;
+                pauseMusic();
             } else {
                 pause = 1;
+                resumeMusic();
             }
         }
     };
