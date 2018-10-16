@@ -1,11 +1,25 @@
 window.onload = function () {
+
+    'use strict';
+	
+	Physijs.scripts.worker = 'physijs_worker.js';
+    Physijs.scripts.ammo = 'ammo.js';
     
+    var scene = new Physijs.Scene;
+		scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
+		// scene.addEventListener(
+		// 	'update',
+		// 	function() {
+		// 		scene.simulate( undefined, 1 );
+		// 		physics_stats.update();
+		// 	}
+		// );
 
     var spaceshipModel = new THREE.Group();
 
     var renderer = new THREE.WebGLRenderer();
 
-    var audio;
+    var audio, camera, group;
     // end template here
 
     //skybox
@@ -58,7 +72,7 @@ window.onload = function () {
     }
 
     function init() {
-        scene = new THREE.Scene();
+        
 
         // camera 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000000);
@@ -157,7 +171,7 @@ window.onload = function () {
             moveRight = true;
         } else if (keyCode == 38) { // up key voor naar boven
             moveUp = true;
-            
+
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = true;
         } else if (keyCode == 80) { //down key voor naar pause
@@ -195,21 +209,19 @@ window.onload = function () {
         }
     };
 
-    function stabiliseerSchip(){
-        if( !(curRotLeftRight > -0.05) ) //links
+    function stabiliseerSchip() {
+        if (!(curRotLeftRight > -0.05)) //links
         {
             rotateLeft = true;
         }
-        else if( !(curRotLeftRight < 0.05 ) ) //rechts
+        else if (!(curRotLeftRight < 0.05)) //rechts
         {
             rotateRight = true;
         }
-        if( curRotY > 0.01 )
-        {
+        if (curRotY > 0.01) {
             rotateYLeft = true;
         }
-        if( curRotY < -0.01 )
-        {
+        if (curRotY < -0.01) {
             rotateYRight = true;
         }
     }
@@ -231,80 +243,80 @@ window.onload = function () {
             }
 
             if (moveRight == true) {
-                if(curRotLeftRight < 0.5 && curRotLeftRight > -0.6){
+                spaceshipModel.position.z -= sideSpeed * pause;
+                camera.position.z -= sideSpeed * pause;
+                if (curRotLeftRight < 0.5 && curRotLeftRight > -0.6) {
                     curRotLeftRight += rotationSpeed;
                     spaceshipModel.rotation.z += rotationSpeed * pause;
                 }
-                if(curRotLeftRight > 0.45)
-                {
-                    spaceshipModel.position.z -= sideSpeed * pause; 
-                    camera.position.z -= sideSpeed * pause;
+                if (curRotLeftRight > 0.45) {
 
-                    if(curRotY < 0.3 && curRotY > -0.4){
+
+                    if (curRotY < 0.3 && curRotY > -0.4) {
                         curRotY += noseTurnSpeed;
                         spaceshipModel.rotation.y -= noseTurnSpeed * pause;
                     }
                 }
-                
-                
+
+
             }
             if (moveLeft == true) {
-                if(curRotLeftRight < 0.6 && curRotLeftRight > -0.5){
+
+                spaceshipModel.position.z += sideSpeed * pause;
+                camera.position.z += sideSpeed * pause;
+                if (curRotLeftRight < 0.6 && curRotLeftRight > -0.5) {
                     curRotLeftRight -= rotationSpeed;
                     spaceshipModel.rotation.z -= rotationSpeed * pause;
                 }
-                if(curRotLeftRight<-0.45)
-                {
-                    spaceshipModel.position.z += sideSpeed * pause;
-                    camera.position.z += sideSpeed * pause;
+                if (curRotLeftRight < -0.45) {
 
-                    if(curRotY < 0.4 && curRotY > -0.3){
+                    if (curRotY < 0.4 && curRotY > -0.3) {
                         curRotY -= noseTurnSpeed;
                         spaceshipModel.rotation.y += noseTurnSpeed * pause;
                     }
                 }
             }
             if (moveUp == true) {
-                //spaceshipModel.position.y += 0.2 * pause;
-                //camera.position.y += 0.2 * pause;
-                spaceshipModel.rotation.z += 0.2;
-                
+                spaceshipModel.position.y += 0.2 * pause;
+                camera.position.y += 0.2 * pause;
+                //spaceshipModel.rotation.z += 0.2;
+
             }
             if (moveDown == true) {
                 spaceshipModel.position.y -= 0.2 * pause;
                 camera.position.y -= 0.2 * pause;
             }
             if (rotateRight == true) {
-                if(curRotLeftRight > 0.01){
+                if (curRotLeftRight > 0.01) {
                     spaceshipModel.rotation.z -= 0.05 * pause;
                     curRotLeftRight -= 0.05;
-                }else {
+                } else {
                     rotateRight = false;
                 }
             }
             if (rotateLeft == true) {
-                if(curRotLeftRight < -0.01){
+                if (curRotLeftRight < -0.01) {
                     spaceshipModel.rotation.z += 0.05 * pause;
                     curRotLeftRight += 0.05;
-                }else {
+                } else {
                     rotateLeft = false;
-                } 
+                }
             }
             if (rotateYLeft == true) {
                 //spaceshipModel.rotation.y -= rotationSpeed * pause;
-                if(curRotY > 0.01){
+                if (curRotY > 0.01) {
                     spaceshipModel.rotation.y += 0.05 * pause;
                     curRotY -= 0.05;
-                }else {
+                } else {
                     rotateYLeft = false;
                 }
             }
             if (rotateYRight == true) {
                 //spaceshipModel.rotation.y -= rotationSpeed * pause;
-                if(curRotY < -0.01){
+                if (curRotY < -0.01) {
                     spaceshipModel.rotation.y -= 0.05 * pause;
                     curRotY += 0.05;
-                }else {
+                } else {
                     rotateYRight = false;
                 }
             }
@@ -312,7 +324,7 @@ window.onload = function () {
                 //spaceshipModel.rotation.y -= rotationSpeed * pause;
             }
             if (rotateDown == true) {
-                
+
             }
         }, 1000 / 60);
 
@@ -383,7 +395,7 @@ window.onload = function () {
         console.log(audio);
         audio.loop = true;
         audio.play();
-        
+
     }
 
     function pauseMusic() {
@@ -392,7 +404,7 @@ window.onload = function () {
     }
 
     function resumeMusic() {
-        console.log("play");        
+        console.log("play");
         audio.play();
     }
 
