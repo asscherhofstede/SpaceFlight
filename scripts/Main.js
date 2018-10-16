@@ -1,7 +1,11 @@
 window.onload = function () {
+    
+
     var spaceshipModel = new THREE.Group();
 
     var renderer = new THREE.WebGLRenderer();
+
+    var audio;
     // end template here
 
     //skybox
@@ -25,6 +29,15 @@ window.onload = function () {
     var moveDown = false;
     var rotateLeft = false;
     var rotateRight = false;
+    var rotateUp = false;
+    var rotateDown = false;
+    var rotateYLeft = false;
+    var rotateYRight = false;
+    var curRotLeftRight = 0;
+    var CurRotUpDown = 0;
+    var sideSpeed = 0.25;
+    var curRotY = 0;
+    var noseTurnSpeed = 0.03;
 
     //spelerscore
     var playerScore = 1;
@@ -33,7 +46,7 @@ window.onload = function () {
         a += (0.25 * pause);
         playerScore = Math.round(a);
         //tekst
-        var text2 = document.createElement('div');
+        var text2 = document.getElementById("score");
         text2.style.position = 'absolute';
         text2.style.width = 100;
         text2.style.height = 20;
@@ -53,11 +66,11 @@ window.onload = function () {
         //camera.position.set(103, 5, 10);
 
         //camera.rotation.z = Math.PI / 2;
-        camera.position.set(0, 250, -500);
-        camera.rotation.y = 180 * (Math.PI / 180);
+        camera.position.set(93, 3, 10);
+        camera.rotation.y = 180 * (Math.PI / 360);
         //cameraControls.update();
         //scene.add(camera);
-        spaceshipModel.add(camera);
+        scene.add(camera);
 
         document.addEventListener("keydown", onDocumentKeyDown, false);
         document.addEventListener("keyup", onDocumentKeyUp, false);
@@ -90,6 +103,8 @@ window.onload = function () {
         scene.add(plane);
 
         spaceship(shipChoice);
+
+        playMusic();
     }
 
     function onWindowResize() {
@@ -136,16 +151,16 @@ window.onload = function () {
 
         } else if (keyCode == 37) { // left key voor bewegen naar links
             moveLeft = true;
-
+            rotateLeft = false;
         } else if (keyCode == 39) { // right key voor bewegen naar rechts
+            rotateRight = false;
             moveRight = true;
-
         } else if (keyCode == 38) { // up key voor naar boven
             moveUp = true;
-
+            
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = true;
-        } else if (keyCode == 80) { //down key voor naar beneden
+        } else if (keyCode == 80) { //down key voor naar pause
             if (pause == 1) {
                 pause = 0;
             } else {
@@ -159,24 +174,43 @@ window.onload = function () {
         var keyCode = event.which;
 
         if (keyCode == 90) {  //z key voor rotatie over rechts
-            rotateRight = false;
+            //rotateRight = false;
 
         } else if (keyCode == 88) { // x key voor rotatie over links
-            rotateLeft = false;
+            //rotateLeft = false;
 
         } else if (keyCode == 37) { // left key voor bewegen naar links
             moveLeft = false;
-
+            stabiliseerSchip();
         } else if (keyCode == 39) { // right key voor bewegen naar rechts
             moveRight = false;
+            stabiliseerSchip();
 
         } else if (keyCode == 38) { // up key voor naar boven
             moveUp = false;
-
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = false;
         }
     };
+
+    function stabiliseerSchip(){
+        if( !(curRotLeftRight > -0.05) ) //links
+        {
+            rotateLeft = true;
+        }
+        else if( !(curRotLeftRight < 0.05 ) ) //rechts
+        {
+            rotateRight = true;
+        }
+        if( curRotY > 0.01 )
+        {
+            rotateYLeft = true;
+        }
+        if( curRotY < -0.01 )
+        {
+            rotateYRight = true;
+        }
+    }
 
     function animate() {
         setTimeout(function () {
@@ -195,22 +229,88 @@ window.onload = function () {
             }
 
             if (moveRight == true) {
-                spaceshipModel.position.z -= 0.2 * pause;
+                if(curRotLeftRight < 0.5 && curRotLeftRight > -0.6){
+                    curRotLeftRight += rotationSpeed;
+                    spaceshipModel.rotation.z += rotationSpeed * pause;
+                }
+                if(curRotLeftRight > 0.45)
+                {
+                    spaceshipModel.position.z -= sideSpeed * pause; 
+                    camera.position.z -= sideSpeed * pause;
+
+                    if(curRotY < 0.3 && curRotY > -0.4){
+                        curRotY += noseTurnSpeed;
+                        spaceshipModel.rotation.y -= noseTurnSpeed * pause;
+                    }
+                }
+                
+                
             }
             if (moveLeft == true) {
-                spaceshipModel.position.z += 0.2 * pause;
+                if(curRotLeftRight < 0.6 && curRotLeftRight > -0.5){
+                    curRotLeftRight -= rotationSpeed;
+                    spaceshipModel.rotation.z -= rotationSpeed * pause;
+                }
+                if(curRotLeftRight<-0.45)
+                {
+                    spaceshipModel.position.z += sideSpeed * pause;
+                    camera.position.z += sideSpeed * pause;
+
+                    if(curRotY < 0.4 && curRotY > -0.3){
+                        curRotY -= noseTurnSpeed;
+                        spaceshipModel.rotation.y += noseTurnSpeed * pause;
+                    }
+                }
             }
             if (moveUp == true) {
-                spaceshipModel.position.y += 0.2 * pause;
+                //spaceshipModel.position.y += 0.2 * pause;
+                //camera.position.y += 0.2 * pause;
+                spaceshipModel.rotation.z += 0.2;
+                
             }
             if (moveDown == true) {
                 spaceshipModel.position.y -= 0.2 * pause;
+                camera.position.y -= 0.2 * pause;
             }
             if (rotateRight == true) {
-                spaceshipModel.rotation.z += rotationSpeed * pause;
+                if(curRotLeftRight > 0.01){
+                    spaceshipModel.rotation.z -= 0.05 * pause;
+                    curRotLeftRight -= 0.05;
+                }else {
+                    rotateRight = false;
+                }
             }
             if (rotateLeft == true) {
-                spaceshipModel.rotation.z -= rotationSpeed * pause;
+                if(curRotLeftRight < -0.01){
+                    spaceshipModel.rotation.z += 0.05 * pause;
+                    curRotLeftRight += 0.05;
+                }else {
+                    rotateLeft = false;
+                } 
+            }
+            if (rotateYLeft == true) {
+                //spaceshipModel.rotation.y -= rotationSpeed * pause;
+                if(curRotY > 0.01){
+                    spaceshipModel.rotation.y += 0.05 * pause;
+                    curRotY -= 0.05;
+                }else {
+                    rotateYLeft = false;
+                }
+            }
+            if (rotateYRight == true) {
+                //spaceshipModel.rotation.y -= rotationSpeed * pause;
+                if(curRotY < -0.01){
+                    spaceshipModel.rotation.y -= 0.05 * pause;
+                    curRotY += 0.05;
+                }else {
+                    rotateYRight = false;
+                }
+            }
+            if (rotateUp == true) {
+                //spaceshipModel.rotation.y -= rotationSpeed * pause;
+            }
+            if (rotateDown == true) {
+                
             }
         }, 1000 / 60);
 
@@ -273,6 +373,25 @@ window.onload = function () {
                         spaceshipModel.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                     });
             });
+    }
+
+    function playMusic() {
+        audio = new Audio('music/500miles.mp3');
+        audio.volume = 0.3;
+        console.log(audio);
+        audio.loop = true;
+        audio.play();
+        
+    }
+
+    function pauseMusic() {
+        console.log("pause");
+        audio.pause();
+    }
+
+    function resumeMusic() {
+        console.log("play");        
+        audio.play();
     }
 
     init();
