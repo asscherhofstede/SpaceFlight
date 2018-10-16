@@ -1,25 +1,25 @@
 window.onload = function () {
 
     'use strict';
-	
-	Physijs.scripts.worker = 'physijs_worker.js';
+
+    Physijs.scripts.worker = 'physijs_worker.js';
     Physijs.scripts.ammo = 'ammo.js';
-    
+
     var scene = new Physijs.Scene;
-		scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
-		// scene.addEventListener(
-		// 	'update',
-		// 	function() {
-		// 		scene.simulate( undefined, 1 );
-		// 		physics_stats.update();
-		// 	}
-		// );
+    scene.setGravity(new THREE.Vector3(0, -30, 0));
+    // scene.addEventListener(
+    // 	'update',
+    // 	function() {
+    // 		scene.simulate( undefined, 1 );
+    // 		physics_stats.update();
+    // 	}
+    // );
 
     var spaceshipModel = new THREE.Group();
 
     var renderer = new THREE.WebGLRenderer();
 
-    var audio, camera, group;
+    var audio, camera, group, cameraControls;
     // end template here
 
     //skybox
@@ -72,11 +72,11 @@ window.onload = function () {
     }
 
     function init() {
-        
+
 
         // camera 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000000);
-        //cameraControls = new THREE.OrbitControls(camera);
+        cameraControls = new THREE.OrbitControls(camera);
         //camera.position.set(103, 5, 10);
 
         //camera.rotation.z = Math.PI / 2;
@@ -387,6 +387,41 @@ window.onload = function () {
                         spaceshipModel.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                     });
             });
+
+        var hitboxFront = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(200, 50, 500),
+            new THREE.MeshBasicMaterial({ color: 0xfff })
+        );
+        hitboxFront.position.z = 50;
+        hitboxFront.material.transparent = true;
+        hitboxFront.material.opacity = 0;
+
+        var hitboxBack = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(1000, 50, 200),
+            new THREE.MeshBasicMaterial({ color: 0x888888 })
+        );
+        hitboxBack.position.z = -200;
+        hitboxBack.material.transparent = true;
+        hitboxBack.material.opacity = 0;
+
+        var hitboxUpDown = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(300, 300, 200),
+            new THREE.MeshBasicMaterial({ color: 0xF4F1F2 })
+        );
+        hitboxUpDown.position.z = -200;
+        hitboxUpDown.material.transparent = true;
+        hitboxUpDown.material.opacity = 0;
+
+        mesh.addEventListener( 'collision', collisionHandler);
+
+
+
+        spaceshipModel.add(hitboxFront);
+        spaceshipModel.add(hitboxBack);
+        spaceshipModel.add(hitboxUpDown);
+
+
+
     }
 
     function playMusic() {
@@ -406,6 +441,13 @@ window.onload = function () {
     function resumeMusic() {
         console.log("play");
         audio.play();
+    }
+
+    function collisionHandler( other_object, relative_velocity, relative_rotation, contact_normal ) {
+        // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
+        if(this.collisions != 0) {
+            console.log("hit");
+        }
     }
 
     init();
