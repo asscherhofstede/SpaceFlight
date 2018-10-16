@@ -412,16 +412,13 @@ window.onload = function () {
         hitboxUpDown.material.transparent = true;
         hitboxUpDown.material.opacity = 0;
 
-        mesh.addEventListener( 'collision', collisionHandler);
-
-
+        hitboxFront.addEventListener( 'collision', collisionHandler);
+        hitboxBack.addEventListener( 'collision', collisionHandler);
+        hitboxUpDown.addEventListener( 'collision', collisionHandler);
 
         spaceshipModel.add(hitboxFront);
         spaceshipModel.add(hitboxBack);
         spaceshipModel.add(hitboxUpDown);
-
-
-
     }
 
     function playMusic() {
