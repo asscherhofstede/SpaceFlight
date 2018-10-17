@@ -6,7 +6,10 @@ window.onload = function () {
     Physijs.scripts.ammo = 'ammo.js';
 
     var scene = new Physijs.Scene;
-    scene.setGravity(new THREE.Vector3(0, 0, 0));
+
+    var renderer = new THREE.WebGLRenderer();
+
+    scene.setGravity(new THREE.Vector3(0, -10, 0));
     scene.addEventListener(
         'update',
         function () {
@@ -18,16 +21,8 @@ window.onload = function () {
     var spaceshipModel = new THREE.Group();
     var wall = new THREE.Group();
 
-    var renderer = new THREE.WebGLRenderer();
-
     var audio, camera, group, cameraControls;
     // end template here
-
-    //skybox
-    // var skyboxgeo = new THREE.SphereGeometry(500, 32, 32);
-    // var skyboxmat = new THREE.MeshBasicMaterial({ color: new THREE.TextureLoader().load("textures/skybox.jpg"), side: THREE.DoubleSide });
-    // var skybox = new THREE.Mesh(skyboxgeo, skyboxmat);
-    // scene.add(skybox);
 
     //schipvariabelen
     //var shipChoice = prompt("voer een 1 in voor een generiek ruimteschip, 2 voor een spaceshuttle en 3 voor een vliegtuigje");
@@ -38,7 +33,7 @@ window.onload = function () {
     var pause = 1;
     var gameSpeed = 0.5;
 
-    //bewegingsvariabele
+    //#region bewegingsvariabele
     var moveRight = false;
     var moveLeft = false;
     var moveUp = false;
@@ -57,6 +52,7 @@ window.onload = function () {
     var curRotY = 0;
     var curRotZ = 0;
     var noseTurnSpeed = 0.03;
+    //#endregion
 
     //spelerscore
     var playerScore = 1;
@@ -77,18 +73,12 @@ window.onload = function () {
     }
 
     function init() {
-
-
         // camera
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 150);
         //cameraControls = new THREE.OrbitControls(camera);
-        //camera.position.set(103, 5, 10);
-
-        //camera.rotation.z = Math.PI / 2;
         camera.position.set(93, 3, 10);
         camera.rotation.y = 180 * (Math.PI / 360);
         //cameraControls.update();
-        //scene.add(camera);
         scene.add(camera);
 
         document.addEventListener("keydown", onDocumentKeyDown, false);
@@ -101,29 +91,38 @@ window.onload = function () {
 
         window.addEventListener('resize', onWindowResize, false);
 
-
-        scene.add(spaceshipModel);
-
         var light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
 
-        //var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-        // scene.add(directionalLight);
-
         //#region borders
-        var borderGeo = new THREE.BoxBufferGeometry(1000, 20, 10);
-        var borderMat = new THREE.MeshBasicMaterial({ color: 0x00FFFF });
-        var borderRight = new THREE.Mesh(borderGeo, borderMat);
-        var borderLeft = new THREE.Mesh(borderGeo, borderMat);
+        var borderGeo = new THREE.BoxGeometry(1000, 20, 10);
+        var borderMat = Physijs.createMaterial(
+            new THREE.MeshBasicMaterial({ color: 0x00FFFF }),
+            .8, // high friction
+            .3 // low restitution
+        );
+
+        var borderRight = new Physijs.BoxMesh(
+            borderGeo,
+            borderMat,
+            0
+        );
+        //var borderRight = new THREE.Mesh(borderGeo, borderMat);
+        var borderLeft = new Physijs.BoxMesh(
+            borderGeo,
+            borderMat,
+            0
+        );
+        //var borderLeft = new THREE.Mesh(borderGeo, borderMat);
         borderRight.position.set(100, 9.5, 0);
         borderLeft.position.set(100, 9.5, 50);
 
         var edgeRight = new THREE.EdgesGeometry(borderGeo);
-        var lineRight = new THREE.LineSegments(edgeRight, new THREE.LineBasicMaterial({ color: 0x000000 }))
+        var lineRight = new THREE.LineSegments(edgeRight, new THREE.LineBasicMaterial({ color: 0x000000 }));
         lineRight.position.set(100, 9.5, 0.1);
 
         var edgeLeft = new THREE.EdgesGeometry(borderGeo);
-        var lineLeft = new THREE.LineSegments(edgeLeft, new THREE.LineBasicMaterial({ color: 0x000000 }))
+        var lineLeft = new THREE.LineSegments(edgeLeft, new THREE.LineBasicMaterial({ color: 0x000000 }));
         lineLeft.position.set(100, 9.5, 49.9);
 
 
@@ -136,8 +135,21 @@ window.onload = function () {
 
         var geometry = new THREE.PlaneGeometry(1000, 100, 100);
         var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
-        var borderBottom = new THREE.Mesh(geometry, material);
-        var borderTop = new THREE.Mesh(geometry, material);
+
+        var borderBottom = new Physijs.PlaneMesh(
+            geometry,
+            material,
+            0
+        );
+
+        var borderTop = new Physijs.PlaneMesh(
+            geometry,
+            material,
+            0
+        );
+
+        //var borderBottom = new THREE.Mesh(geometry, material);
+        //var borderTop = new THREE.Mesh(geometry, material);
         borderBottom.rotation.x = Math.PI / 2.0;
         borderTop.rotation.x = Math.PI / 2.0;
 
@@ -148,6 +160,7 @@ window.onload = function () {
         scene.add(borderTop);
         //#endregion
 
+        scene.add(spaceshipModel);
         spaceship(shipChoice);
 
         //playMusic();
@@ -487,7 +500,7 @@ window.onload = function () {
             mat
         );
         hitbox.position.set(0, 0, 0);
-        hitbox.material.transparent = true;
+        //hitbox.material.transparent = true;
         hitbox.material.opacity = 0;
 
         var hitboxBack = new Physijs.BoxMesh(
@@ -495,7 +508,7 @@ window.onload = function () {
             mat
         );
         hitboxBack.position.set(2.5, 0, 0);
-        hitboxBack.material.transparent = true;
+        //hitboxBack.material.transparent = true;
         hitboxBack.material.opacity = 0;
 
         var hitboxUpDown = new Physijs.BoxMesh(
@@ -503,11 +516,11 @@ window.onload = function () {
             mat
         );
         hitboxUpDown.position.set(2.5, 0, 0);
-        hitboxUpDown.material.transparent = true;
+        //hitboxUpDown.material.transparent = true;
         hitboxUpDown.material.opacity = 0;
 
-        hitbox.add(hitboxBack);
-        hitbox.add(hitboxUpDown);
+        //hitbox.add(hitboxBack);
+        //hitbox.add(hitboxUpDown);
 
         hitbox.collisions = 0;
 
@@ -520,7 +533,7 @@ window.onload = function () {
 
         spaceshipModel.add(hitbox);
         //#endregion
-        
+
         switch (choice) {
             case '1':
                 scale = 0.01;
@@ -578,6 +591,7 @@ window.onload = function () {
         // spaceshipModel.add(hitboxUpDown);
     }
 
+    //#region music
     function playMusic() {
         audio = new Audio('music/500miles.mp3');
         audio.volume = 0.3;
@@ -596,11 +610,29 @@ window.onload = function () {
         console.log("play");
         audio.play();
     }
+    //#endregion
 
     function collisionHandler(other_object, relative_velocity, relative_rotation, contact_normal) {
         // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
+
+        console.log(other_object);
+        console.log("in collision");
         if (this.collisions != 0) {
             console.log("hit");
+        }
+        switch (++this.collisions) {
+            case 1:
+                console.log("1 hit");
+                break;
+            case 2:
+                console.log("2 hit");
+                break;
+            case 3:
+                console.log("3 hit");
+                break;
+        }
+        if (other_object.name !== "spaceship") {
+            console.log("shap");
         }
     }
 
