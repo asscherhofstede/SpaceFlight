@@ -34,8 +34,9 @@ window.onload = function () {
     var shipChoice = '1';
     var rotationSpeed = 0.05; //de snelheid van de rotatie
 
-    //pause
+    //gamevars
     var pause = 1;
+    var gameSpeed = 0.5;
 
     //bewegingsvariabele
     var moveRight = false;
@@ -48,10 +49,13 @@ window.onload = function () {
     var rotateDown = false;
     var rotateYLeft = false;
     var rotateYRight = false;
+    var rotateZLeft = false;
+    var rotateZRight = false;
     var curRotLeftRight = 0;
     var CurRotUpDown = 0;
     var sideSpeed = 0.25;
     var curRotY = 0;
+    var curRotZ = 0;
     var noseTurnSpeed = 0.03;
 
     //spelerscore
@@ -228,8 +232,10 @@ window.onload = function () {
 
         } else if (keyCode == 38) { // up key voor naar boven
             moveUp = false;
+            stabiliseerSchip();
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = false;
+            stabiliseerSchip();
         }
     };
 
@@ -247,6 +253,22 @@ window.onload = function () {
         }
         if (curRotY < -0.01) {
             rotateYRight = true;
+        }
+        if( curRotZ < -0.01 )
+        {
+            rotateZRight = true;
+        }
+        if( curRotZ > 0.01 )
+        {
+            rotateZLeft = true;
+        }
+        if(CurRotUpDown > 0.01)
+        {
+            rotateDown = true;
+        }
+        if(CurRotUpDown < -0.01)
+        {
+            rotateUp = true;
         }
     }
 
@@ -292,8 +314,10 @@ window.onload = function () {
             //cameraControls.update();
             updateScore();
 
-            group.position.x += 0.5 * pause;
-            wall.position.x += 0.2 * pause;
+            gameSpeed += 0.00025*pause;
+                
+            group.position.x += gameSpeed * pause;
+            wall.position.x += gameSpeed * pause;
             if (group.position.x > 300 && wall.position.x > 120) {
                 scene.remove(group);
                 scene.remove(wall);
@@ -310,68 +334,84 @@ window.onload = function () {
             }
 
             if (moveRight == true) {
-                spaceshipModel.position.z -= sideSpeed * pause;
+                spaceshipModel.position.z -= sideSpeed * pause; 
                 camera.position.z -= sideSpeed * pause;
-                if (curRotLeftRight < 0.5 && curRotLeftRight > -0.6) {
+
+                if(curRotLeftRight < 0.5 && curRotLeftRight > -0.6){ //zorgt voor draaiing over eigen as naar rechts
                     curRotLeftRight += rotationSpeed;
-                    spaceshipModel.rotation.z += rotationSpeed * pause;
+                    spaceshipModel.rotation.x -= rotationSpeed * pause;
                 }
-                if (curRotLeftRight > 0.45) {
-
-
-                    if (curRotY < 0.3 && curRotY > -0.4) {
+                if(curRotLeftRight > 0.45) //als de rotatie over eigen as voldoende is, draai het schip naar rechts
+                {
+                    if(curRotY < 0.3 && curRotY > -0.4){
                         curRotY += noseTurnSpeed;
                         spaceshipModel.rotation.y -= noseTurnSpeed * pause;
+                        //spaceshipModel.rotation.z -= noseTurnSpeed * pause;
+                    }
+                    if(curRotZ < 0.3 && curRotZ > -0.4) //test
+                    {
+                        curRotZ += noseTurnSpeed;
+                        spaceshipModel.rotation.z -= noseTurnSpeed * pause;
                     }
                 }
-
-
             }
             if (moveLeft == true) {
-
                 spaceshipModel.position.z += sideSpeed * pause;
                 camera.position.z += sideSpeed * pause;
-                if (curRotLeftRight < 0.6 && curRotLeftRight > -0.5) {
-                    curRotLeftRight -= rotationSpeed;
-                    spaceshipModel.rotation.z -= rotationSpeed * pause;
-                }
-                if (curRotLeftRight < -0.45) {
 
-                    if (curRotY < 0.4 && curRotY > -0.3) {
+                if(curRotLeftRight < 0.6 && curRotLeftRight > -0.5){ //zorgt voor draaiing over eigen as naar links
+                    curRotLeftRight -= rotationSpeed;
+                    spaceshipModel.rotation.x += rotationSpeed * pause;
+                }
+                if(curRotLeftRight<-0.45) //als de rotatie over eigen as voldoende is, draai het schip naar links
+                {
+                    if(curRotY < 0.4 && curRotY > -0.3){
                         curRotY -= noseTurnSpeed;
                         spaceshipModel.rotation.y += noseTurnSpeed * pause;
+                        //spaceshipModel.rotation.z += noseTurnSpeed * pause;
+                    }
+                    if(curRotZ < 0.4 && curRotZ > -0.3) //test
+                    {
+                        curRotZ += noseTurnSpeed;
+                        spaceshipModel.rotation.z -= noseTurnSpeed * pause;
                     }
                 }
             }
             if (moveUp == true) {
                 spaceshipModel.position.y += 0.2 * pause;
                 camera.position.y += 0.2 * pause;
-                //spaceshipModel.rotation.z += 0.2;
-
+                    if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
+                        CurRotUpDown += noseTurnSpeed;
+                        spaceshipModel.rotation.z -= noseTurnSpeed * pause;
+                    }
             }
             if (moveDown == true) {
                 spaceshipModel.position.y -= 0.2 * pause;
                 camera.position.y -= 0.2 * pause;
+                    if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
+                        CurRotUpDown -= noseTurnSpeed;
+                        spaceshipModel.rotation.z += noseTurnSpeed * pause;
+                    }
             }
-            if (rotateRight == true) {
-                if (curRotLeftRight > 0.01) {
-                    spaceshipModel.rotation.z -= 0.05 * pause;
+            if (rotateRight == true) { //roteert het schip zijn rol over eigen as terug naar rechtop
+                if(curRotLeftRight > 0.01){
+                    spaceshipModel.rotation.x += 0.05 * pause;
                     curRotLeftRight -= 0.05;
                 } else {
                     rotateRight = false;
                 }
             }
-            if (rotateLeft == true) {
-                if (curRotLeftRight < -0.01) {
-                    spaceshipModel.rotation.z += 0.05 * pause;
+            if (rotateLeft == true) { //roteert het schip zijn rol over eigen as terug naar rechtop
+                if(curRotLeftRight < -0.01){
+                    spaceshipModel.rotation.x -= 0.05 * pause;
                     curRotLeftRight += 0.05;
                 } else {
                     rotateLeft = false;
                 }
             }
             if (rotateYLeft == true) {
-                //spaceshipModel.rotation.y -= rotationSpeed * pause;
-                if (curRotY > 0.01) {
+                
+                if(curRotY > 0.01){
                     spaceshipModel.rotation.y += 0.05 * pause;
                     curRotY -= 0.05;
                 } else {
@@ -379,19 +419,47 @@ window.onload = function () {
                 }
             }
             if (rotateYRight == true) {
-                //spaceshipModel.rotation.y -= rotationSpeed * pause;
-                if (curRotY < -0.01) {
+                
+                if(curRotY < -0.01){
                     spaceshipModel.rotation.y -= 0.05 * pause;
                     curRotY += 0.05;
                 } else {
                     rotateYRight = false;
                 }
             }
+            if (rotateZLeft == true) {
+                
+                if(curRotZ > 0.01){
+                    spaceshipModel.rotation.z += 0.05 * pause;
+                    curRotZ -= 0.05;
+                }else {
+                    rotateZLeft = false;
+                }
+            }
+            if (rotateZRight == true) {
+                
+                if(curRotZ > 0.01){
+                    spaceshipModel.rotation.z -= 0.05 * pause;
+                    curRotZ -= 0.05;
+                }else {
+                    rotateZRight = false;
+                }
+            }
             if (rotateUp == true) {
-                //spaceshipModel.rotation.y -= rotationSpeed * pause;
+                if(CurRotUpDown < -0.01){
+                    spaceshipModel.rotation.z -= 0.03 * pause;
+                    CurRotUpDown += 0.03;
+                }else{
+                    rotateUp = false;
+                }
             }
             if (rotateDown == true) {
-
+                if(CurRotUpDown > 0.01){
+                    spaceshipModel.rotation.z += 0.03 * pause;
+                    CurRotUpDown -= 0.03;
+                }else{
+                    rotateDown = false;
+                }
             }
         }, 1000 / 60);
 
@@ -450,8 +518,8 @@ window.onload = function () {
                     .load(obj, function (object) {
                         spaceshipModel.add(object);
                         spaceshipModel.position.set(shipX, shipY, shipZ);
-                        spaceshipModel.scale.set(scale / 1.3, scale / 1.3, scale);
-                        spaceshipModel.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
+                        object.scale.set(scale, scale, scale);
+                        object.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                     });
             });
 
@@ -517,6 +585,5 @@ window.onload = function () {
 
     init();
     MakeObject();
-    //BuildAWall(8);
     animate();
 };
