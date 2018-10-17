@@ -23,12 +23,6 @@ window.onload = function () {
     var audio, camera, group, cameraControls;
     // end template here
 
-    //skybox
-    // var skyboxgeo = new THREE.SphereGeometry(500, 32, 32);
-    // var skyboxmat = new THREE.MeshBasicMaterial({ color: new THREE.TextureLoader().load("textures/skybox.jpg"), side: THREE.DoubleSide });
-    // var skybox = new THREE.Mesh(skyboxgeo, skyboxmat);
-    // scene.add(skybox);
-
     //schipvariabelen
     //var shipChoice = prompt("voer een 1 in voor een generiek ruimteschip, 2 voor een spaceshuttle en 3 voor een vliegtuigje");
     var shipChoice = '1';
@@ -53,7 +47,7 @@ window.onload = function () {
     var rotateZRight = false;
     var curRotLeftRight = 0;
     var CurRotUpDown = 0;
-    var sideSpeed = 0.25;
+    var sideSpeed = 0.5;
     var curRotY = 0;
     var curRotZ = 0;
     var noseTurnSpeed = 0.03;
@@ -107,6 +101,24 @@ window.onload = function () {
         var light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
 
+        //skybox
+        var skyboxGeo = new THREE.PlaneGeometry(50, 20);
+        var skyboxMat = new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/skybox.jpg"), side: THREE.DoubleSide});
+        var skybox = new THREE.Mesh(skyboxGeo, skyboxMat);
+
+        skybox.position.set(-50, 9.5, 22);
+        skybox.rotation.y = Math.PI / 2 ;
+        scene.add(skybox);
+
+        //Eindfoto
+        var endPlaneGeo = new THREE.PlaneGeometry(50, 20);
+        var endPlaneMat = new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/skybox/skybox.png"), side: THREE.DoubleSide});
+        var endPlane = new THREE.Mesh(endPlaneGeo, endPlaneMat);
+
+        endPlane.position.set(-60, 9.5, 22);
+        endPlane.rotation.y = Math.PI / 2 ;
+        scene.add(endPlane);
+
         //var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
         // scene.add(directionalLight);
 
@@ -155,33 +167,7 @@ window.onload = function () {
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    function MakeObject() {
-        group = new THREE.Group();
-
-        //Het laden van het model en de materials(textures)
-        var mtlLoader = new THREE.MTLLoader();
-        mtlLoader.setTexturePath("models/Obstacles/");
-        mtlLoader.setPath("models/Obstacles/");
-        mtlLoader.load("Boulder.mtl", function (materials) {
-            materials.preload();
-
-            var objLoader = new THREE.OBJLoader()
-            objLoader.setMaterials(materials)
-            objLoader.setPath("models/Obstacles/")
-            objLoader.load("Boulder.obj", function (geometry) {
-                //hier kunnen we later wel aanpassen hoeveel objecten er zijn(moeilijksheidgraad)
-                for (var i = 0; i < 250; i++) {
-                    var obstacle = geometry.clone();
-                    obstacle.position.set(Math.random() * -200, Math.random() * 10, Math.random() * 39 + 5.5);
-                    obstacle.scale.set(1, 1, 1);
-                    group.add(obstacle);
-                }
-            });
-        });
-        scene.add(group);
-    }
-
-    document.addEventListener("keydown", onDocumentKeyDown, false);
+    
     function onDocumentKeyDown(event) {
         var keyCode = event.which;
 
@@ -212,8 +198,6 @@ window.onload = function () {
             }
         }
     };
-
-    document.addEventListener("keyup", onDocumentKeyUp, false);
     function onDocumentKeyUp(event) {
         var keyCode = event.which;
 
@@ -272,64 +256,34 @@ window.onload = function () {
         }
     }
 
-    function BuildAWall(amount){
-        wall = new THREE.Group();
-        var z = 0;
-        console.log(amount);
-
-        for(var i = 0; i < 10; i++){
-            var geo = new THREE.BoxGeometry(10, 20, 4);
-            var meshWall = new THREE.MeshBasicMaterial({color: 0xFF0000});
-            var wallPiece = new THREE.Mesh(geo, meshWall);
-
-            
-            if(i == amount){
-                z += 4;
-                continue;
-            }
-            if(i == amount + 1){
-                z += 4;
-                continue;
-            }
-            if(i == amount - 1 && amount == 9){
-                z += 4;
-                continue;
-            }
-            
-            wallPiece.position.set(0, 9.5, z + 7);
-            
-            wall.add(wallPiece);
-            z += 4;
-        }
-        scene.add(wall);
-    }
+    
 
     function animate() {
         setTimeout(function () {
 
             requestAnimationFrame(animate);
-
-
-
             //cameraControls.update();
             updateScore();
 
-            gameSpeed += 0.00025*pause;
+            gameSpeed += 0.00025 * pause;
                 
             group.position.x += gameSpeed * pause;
             wall.position.x += gameSpeed * pause;
-            if (group.position.x > 300 && wall.position.x > 120) {
+            if (group.position.x > 300 && wall.position.x > 200) {
+                
                 scene.remove(group);
                 scene.remove(wall);
                 var random = Math.ceil(Math.random() * 2);
 
                 switch (random){
                     case 1:
-                    MakeObject();
-                    break;
+                        wall = BuildAWall(Math.ceil(Math.random() * 9));
+                        scene.add(wall);
+                        break;
                     case 2:
-                    BuildAWall(Math.ceil(Math.random() * 9))
-                    break;
+                        group = MakeObject();
+                        scene.add(group);
+                        break;
                 }
             }
 
@@ -583,7 +537,9 @@ window.onload = function () {
         }
     }
 
+    
     init();
-    MakeObject();
+    group = MakeObject();
+    scene.add(group);
     animate();
 };
