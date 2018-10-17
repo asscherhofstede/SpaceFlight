@@ -2,7 +2,7 @@ window.onload = function () {
 
     'use strict';
 
-    Physijs.scripts.worker = 'physijs_worker.js';
+    Physijs.scripts.worker = 'scripts/physijs_worker.js';
     Physijs.scripts.ammo = 'ammo.js';
 
     var scene = new Physijs.Scene;
@@ -16,6 +16,7 @@ window.onload = function () {
     // );
 
     var spaceshipModel = new THREE.Group();
+    var wall = new THREE.Group();
 
     var renderer = new THREE.WebGLRenderer();
 
@@ -74,8 +75,8 @@ window.onload = function () {
     function init() {
 
 
-        // camera 
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000000);
+        // camera
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 150);
         //cameraControls = new THREE.OrbitControls(camera);
         //camera.position.set(103, 5, 10);
 
@@ -99,22 +100,45 @@ window.onload = function () {
 
         scene.add(spaceshipModel);
 
-        var light = new THREE.AmbientLight(0x404040);
+        var light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
 
         //var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
         // scene.add(directionalLight);
 
+        var borderGeo = new THREE.BoxBufferGeometry(1000, 20, 10);
+        var borderMat = new THREE.MeshBasicMaterial({color: 0x00FFFF});
+        var borderRight = new THREE.Mesh(borderGeo, borderMat);
+        var borderLeft = new THREE.Mesh(borderGeo, borderMat);
+        borderRight.position.set(100, 9.5, 0);
+        borderLeft.position.set(100, 9.5, 50);
 
+        var edgeRight = new THREE.EdgesGeometry(borderGeo);
+        var lineRight = new THREE.LineSegments(edgeRight, new THREE.LineBasicMaterial({color: 0x000000}))
+        lineRight.position.set(100, 9.5, 0.1);
 
-        var geometry = new THREE.PlaneGeometry(1000, 30, 100);
-        var material = new THREE.MeshBasicMaterial({ color: 0x404040, side: THREE.DoubleSide });
-        var plane = new THREE.Mesh(geometry, material);
-        plane.rotation.x = Math.PI / 2.0;
-        plane.position.x = 100;
-        plane.position.y = -0.5;
-        plane.position.z = 10;
-        scene.add(plane);
+        var edgeLeft = new THREE.EdgesGeometry(borderGeo);
+        var lineLeft = new THREE.LineSegments(edgeLeft, new THREE.LineBasicMaterial({color: 0x000000}))
+        lineLeft.position.set(100, 9.5, 49.9);
+
+        
+        scene.add(borderRight);
+        scene.add(borderLeft);
+        scene.add(lineRight);
+        scene.add(lineLeft);
+
+        var geometry = new THREE.PlaneGeometry(1000, 100, 100);
+        var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
+        var borderBottom = new THREE.Mesh(geometry, material);
+        var borderTop = new THREE.Mesh(geometry, material);
+        borderBottom.rotation.x = Math.PI / 2.0;
+        borderTop.rotation.x = Math.PI / 2.0;
+
+        borderBottom.position.set(100, 19.5, 0);
+        borderTop.position.set(100, -0.5, 0);
+
+        scene.add(borderBottom);
+        scene.add(borderTop);
 
         spaceship(shipChoice);
 
@@ -144,7 +168,7 @@ window.onload = function () {
                 //hier kunnen we later wel aanpassen hoeveel objecten er zijn(moeilijksheidgraad)
                 for (var i = 0; i < 250; i++) {
                     var obstacle = geometry.clone();
-                    obstacle.position.set(Math.random() * -200, Math.random() * 10, Math.random() * 50);
+                    obstacle.position.set(Math.random() * -200, Math.random() * 10, Math.random() * 39 + 5.5);
                     obstacle.scale.set(1, 1, 1);
                     group.add(obstacle);
                 }
@@ -226,6 +250,38 @@ window.onload = function () {
         }
     }
 
+    function BuildAWall(amount){
+        wall = new THREE.Group();
+        var z = 0;
+        console.log(amount);
+
+        for(var i = 0; i < 10; i++){
+            var geo = new THREE.BoxGeometry(10, 20, 4);
+            var meshWall = new THREE.MeshBasicMaterial({color: 0xFF0000});
+            var wallPiece = new THREE.Mesh(geo, meshWall);
+
+            
+            if(i == amount){
+                z += 4;
+                continue;
+            }
+            if(i == amount + 1){
+                z += 4;
+                continue;
+            }
+            if(i == amount - 1 && amount == 9){
+                z += 4;
+                continue;
+            }
+            
+            wallPiece.position.set(0, 9.5, z + 7);
+            
+            wall.add(wallPiece);
+            z += 4;
+        }
+        scene.add(wall);
+    }
+
     function animate() {
         setTimeout(function () {
 
@@ -237,9 +293,20 @@ window.onload = function () {
             updateScore();
 
             group.position.x += 0.5 * pause;
-            if (group.position.x > 300) {
+            wall.position.x += 0.2 * pause;
+            if (group.position.x > 300 && wall.position.x > 120) {
                 scene.remove(group);
-                MakeObject();
+                scene.remove(wall);
+                var random = Math.ceil(Math.random() * 2);
+
+                switch (random){
+                    case 1:
+                    MakeObject();
+                    break;
+                    case 2:
+                    BuildAWall(Math.ceil(Math.random() * 9))
+                    break;
+                }
             }
 
             if (moveRight == true) {
@@ -383,7 +450,7 @@ window.onload = function () {
                     .load(obj, function (object) {
                         spaceshipModel.add(object);
                         spaceshipModel.position.set(shipX, shipY, shipZ);
-                        spaceshipModel.scale.set(scale, scale, scale);
+                        spaceshipModel.scale.set(scale / 1.3, scale / 1.3, scale);
                         spaceshipModel.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                     });
             });
@@ -415,6 +482,7 @@ window.onload = function () {
         hitboxFront.addEventListener( 'collision', collisionHandler);
         hitboxBack.addEventListener( 'collision', collisionHandler);
         hitboxUpDown.addEventListener( 'collision', collisionHandler);
+        
 
         spaceshipModel.add(hitboxFront);
         spaceshipModel.add(hitboxBack);
@@ -449,5 +517,6 @@ window.onload = function () {
 
     init();
     MakeObject();
+    //BuildAWall(8);
     animate();
 };
