@@ -1,11 +1,26 @@
 window.onload = function () {
-    
+
+    'use strict';
+
+    Physijs.scripts.worker = 'scripts/physijs_worker.js';
+    Physijs.scripts.ammo = 'ammo.js';
+
+    var scene = new Physijs.Scene;
+    scene.setGravity(new THREE.Vector3(0, -30, 0));
+    // scene.addEventListener(
+    // 	'update',
+    // 	function() {
+    // 		scene.simulate( undefined, 1 );
+    // 		physics_stats.update();
+    // 	}
+    // );
 
     var spaceshipModel = new THREE.Group();
+    var wall = new THREE.Group();
 
     var renderer = new THREE.WebGLRenderer();
 
-    var audio;
+    var audio, camera, group, cameraControls;
     // end template here
 
     //skybox
@@ -62,10 +77,10 @@ window.onload = function () {
     }
 
     function init() {
-        scene = new THREE.Scene();
+
 
         // camera 
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000000);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 150);
         //cameraControls = new THREE.OrbitControls(camera);
         //camera.position.set(103, 5, 10);
 
@@ -89,22 +104,45 @@ window.onload = function () {
 
         scene.add(spaceshipModel);
 
-        var light = new THREE.AmbientLight(0x404040);
+        var light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
 
         //var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
         // scene.add(directionalLight);
 
+        var borderGeo = new THREE.BoxBufferGeometry(1000, 20, 10);
+        var borderMat = new THREE.MeshBasicMaterial({color: 0x00FFFF});
+        var borderRight = new THREE.Mesh(borderGeo, borderMat);
+        var borderLeft = new THREE.Mesh(borderGeo, borderMat);
+        borderRight.position.set(100, 9.5, 0);
+        borderLeft.position.set(100, 9.5, 50);
 
+        var edgeRight = new THREE.EdgesGeometry(borderGeo);
+        var lineRight = new THREE.LineSegments(edgeRight, new THREE.LineBasicMaterial({color: 0x000000}))
+        lineRight.position.set(100, 9.5, 0.1);
 
-        var geometry = new THREE.PlaneGeometry(1000, 30, 100);
-        var material = new THREE.MeshBasicMaterial({ color: 0x404040, side: THREE.DoubleSide });
-        var plane = new THREE.Mesh(geometry, material);
-        plane.rotation.x = Math.PI / 2.0;
-        plane.position.x = 100;
-        plane.position.y = -0.5;
-        plane.position.z = 10;
-        scene.add(plane);
+        var edgeLeft = new THREE.EdgesGeometry(borderGeo);
+        var lineLeft = new THREE.LineSegments(edgeLeft, new THREE.LineBasicMaterial({color: 0x000000}))
+        lineLeft.position.set(100, 9.5, 49.9);
+
+        
+        scene.add(borderRight);
+        scene.add(borderLeft);
+        scene.add(lineRight);
+        scene.add(lineLeft);
+
+        var geometry = new THREE.PlaneGeometry(1000, 100, 100);
+        var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
+        var borderBottom = new THREE.Mesh(geometry, material);
+        var borderTop = new THREE.Mesh(geometry, material);
+        borderBottom.rotation.x = Math.PI / 2.0;
+        borderTop.rotation.x = Math.PI / 2.0;
+
+        borderBottom.position.set(100, 19.5, 0);
+        borderTop.position.set(100, -0.5, 0);
+
+        scene.add(borderBottom);
+        scene.add(borderTop);
 
         spaceship(shipChoice);
 
@@ -134,7 +172,7 @@ window.onload = function () {
                 //hier kunnen we later wel aanpassen hoeveel objecten er zijn(moeilijksheidgraad)
                 for (var i = 0; i < 250; i++) {
                     var obstacle = geometry.clone();
-                    obstacle.position.set(Math.random() * -200, Math.random() * 10, Math.random() * 50);
+                    obstacle.position.set(Math.random() * -200, Math.random() * 10, Math.random() * 39 + 5.5);
                     obstacle.scale.set(1, 1, 1);
                     group.add(obstacle);
                 }
@@ -161,7 +199,7 @@ window.onload = function () {
             moveRight = true;
         } else if (keyCode == 38) { // up key voor naar boven
             moveUp = true;
-            
+
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = true;
         } else if (keyCode == 80) { //down key voor naar pause
@@ -201,21 +239,19 @@ window.onload = function () {
         }
     };
 
-    function stabiliseerSchip(){
-        if( !(curRotLeftRight > -0.05) ) //links
+    function stabiliseerSchip() {
+        if (!(curRotLeftRight > -0.05)) //links
         {
             rotateLeft = true;
         }
-        else if( !(curRotLeftRight < 0.05 ) ) //rechts
+        else if (!(curRotLeftRight < 0.05)) //rechts
         {
             rotateRight = true;
         }
-        if( curRotY > 0.01 )
-        {
+        if (curRotY > 0.01) {
             rotateYLeft = true;
         }
-        if( curRotY < -0.01 )
-        {
+        if (curRotY < -0.01) {
             rotateYRight = true;
         }
         if( curRotZ < -0.01 )
@@ -236,6 +272,38 @@ window.onload = function () {
         }
     }
 
+    function BuildAWall(amount){
+        wall = new THREE.Group();
+        var z = 0;
+        console.log(amount);
+
+        for(var i = 0; i < 10; i++){
+            var geo = new THREE.BoxGeometry(10, 20, 4);
+            var meshWall = new THREE.MeshBasicMaterial({color: 0xFF0000});
+            var wallPiece = new THREE.Mesh(geo, meshWall);
+
+            
+            if(i == amount){
+                z += 4;
+                continue;
+            }
+            if(i == amount + 1){
+                z += 4;
+                continue;
+            }
+            if(i == amount - 1 && amount == 9){
+                z += 4;
+                continue;
+            }
+            
+            wallPiece.position.set(0, 9.5, z + 7);
+            
+            wall.add(wallPiece);
+            z += 4;
+        }
+        scene.add(wall);
+    }
+
     function animate() {
         setTimeout(function () {
 
@@ -247,12 +315,22 @@ window.onload = function () {
             updateScore();
 
             gameSpeed += 0.00025*pause;
-            
-            group.position.x += gameSpeed * pause;
-            if (group.position.x > 300) {
                 
+            group.position.x += gameSpeed * pause;
+            wall.position.x += gameSpeed * pause;
+            if (group.position.x > 300 && wall.position.x > 120) {
                 scene.remove(group);
-                MakeObject();
+                scene.remove(wall);
+                var random = Math.ceil(Math.random() * 2);
+
+                switch (random){
+                    case 1:
+                    MakeObject();
+                    break;
+                    case 2:
+                    BuildAWall(Math.ceil(Math.random() * 9))
+                    break;
+                }
             }
 
             if (moveRight == true) {
@@ -319,7 +397,7 @@ window.onload = function () {
                 if(curRotLeftRight > 0.01){
                     spaceshipModel.rotation.x += 0.05 * pause;
                     curRotLeftRight -= 0.05;
-                }else {
+                } else {
                     rotateRight = false;
                 }
             }
@@ -327,16 +405,16 @@ window.onload = function () {
                 if(curRotLeftRight < -0.01){
                     spaceshipModel.rotation.x -= 0.05 * pause;
                     curRotLeftRight += 0.05;
-                }else {
+                } else {
                     rotateLeft = false;
-                } 
+                }
             }
             if (rotateYLeft == true) {
                 
                 if(curRotY > 0.01){
                     spaceshipModel.rotation.y += 0.05 * pause;
                     curRotY -= 0.05;
-                }else {
+                } else {
                     rotateYLeft = false;
                 }
             }
@@ -345,7 +423,7 @@ window.onload = function () {
                 if(curRotY < -0.01){
                     spaceshipModel.rotation.y -= 0.05 * pause;
                     curRotY += 0.05;
-                }else {
+                } else {
                     rotateYRight = false;
                 }
             }
@@ -444,6 +522,39 @@ window.onload = function () {
                         object.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                     });
             });
+
+        var hitboxFront = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(200, 50, 500),
+            new THREE.MeshBasicMaterial({ color: 0xfff })
+        );
+        hitboxFront.position.z = 50;
+        hitboxFront.material.transparent = true;
+        hitboxFront.material.opacity = 0;
+
+        var hitboxBack = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(1000, 50, 200),
+            new THREE.MeshBasicMaterial({ color: 0x888888 })
+        );
+        hitboxBack.position.z = -200;
+        hitboxBack.material.transparent = true;
+        hitboxBack.material.opacity = 0;
+
+        var hitboxUpDown = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(300, 300, 200),
+            new THREE.MeshBasicMaterial({ color: 0xF4F1F2 })
+        );
+        hitboxUpDown.position.z = -200;
+        hitboxUpDown.material.transparent = true;
+        hitboxUpDown.material.opacity = 0;
+
+        hitboxFront.addEventListener( 'collision', collisionHandler);
+        hitboxBack.addEventListener( 'collision', collisionHandler);
+        hitboxUpDown.addEventListener( 'collision', collisionHandler);
+        
+
+        spaceshipModel.add(hitboxFront);
+        spaceshipModel.add(hitboxBack);
+        spaceshipModel.add(hitboxUpDown);
     }
 
     function playMusic() {
@@ -452,7 +563,7 @@ window.onload = function () {
         console.log(audio);
         audio.loop = true;
         audio.play();
-        
+
     }
 
     function pauseMusic() {
@@ -461,8 +572,15 @@ window.onload = function () {
     }
 
     function resumeMusic() {
-        console.log("play");        
+        console.log("play");
         audio.play();
+    }
+
+    function collisionHandler( other_object, relative_velocity, relative_rotation, contact_normal ) {
+        // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
+        if(this.collisions != 0) {
+            console.log("hit");
+        }
     }
 
     init();
