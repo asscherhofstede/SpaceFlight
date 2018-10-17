@@ -2,15 +2,10 @@
 <html>
 
 <head>
-	<meta charset="utf-8">
-	<title>Space Evader</title>
+	<title>Shoot 'Em Up</title>
 </head>
 
-<body style="margin: 0; overflow: hidden;">
-	<div id="score"></div>
-
-
-
+<body>
 	<canvas id="myCanvas" width="480" height="320">
 		<p>Your browser does not support HTML5!</p>
 	</canvas>
@@ -97,10 +92,10 @@
 			move();
 			draw();
 			checkClickPos();
+			
+			
 
-
-
-
+		
 
 
 		}
@@ -117,7 +112,7 @@
 			}
 			if (shipSize == 0) {
 				shipRotate = 1;
-
+				
 			}
 			shipSize += shipRotate;
 		}
@@ -183,35 +178,24 @@
 				timerId = setInterval("update()", 1000 / frames);
 				canvas.addEventListener("mousemove", checkPos);
 				canvas.addEventListener("mouseup", checkClick);
-
+				
 			}
 		}
 		function checkClickPos() {
-			//console.log(mouseX, mouseY);
+			console.log(mouseX,mouseY);
 			//play button
-			if (mouseY < 135 && mouseY > 108 && nextpage == true) {
-				if(checkClick = true){
-					//window.onload();
-				}
+			if(mouseY < 135 && mouseY > 108 && nextpage == true){
 				//Hier een script uivoeren
-				//Roep window.onload aan
-				//console.log("yes")
-	}
+				console.log("yes")
+			}
+			
+			//105,135 op de y as van button play
+			//149,168 button 2
+			//190,211
+			//228,250
 
-	//105,135 op de y as van button play
-	//149,168 button 2
-	//190,211
-	//228,250
-
-	}
+		}
 	</script>
-	<script src="scripts/three.min.js" ></script>
-	<script src="scripts/physi.js"></script>
-	<script src="scripts/OrbitControls.js"></script> <!-- voor camera -->
-	<script src="scripts/OBJLoader.js"></script> <!-- voor het laden van 3d modellen -->
-	<script src="scripts/MTLLoader.js"></script>
-	<script src="scripts/Main.js"></script>
-
 </body>
 
 </html>

@@ -79,7 +79,7 @@ window.onload = function () {
     function init() {
 
 
-        // camera 
+        // camera
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 150);
         //cameraControls = new THREE.OrbitControls(camera);
         //camera.position.set(103, 5, 10);
