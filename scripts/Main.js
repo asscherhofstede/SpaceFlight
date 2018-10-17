@@ -6,14 +6,14 @@ window.onload = function () {
     Physijs.scripts.ammo = 'ammo.js';
 
     var scene = new Physijs.Scene;
-    scene.setGravity(new THREE.Vector3(0, -30, 0));
-    // scene.addEventListener(
-    // 	'update',
-    // 	function() {
-    // 		scene.simulate( undefined, 1 );
-    // 		physics_stats.update();
-    // 	}
-    // );
+    scene.setGravity(new THREE.Vector3(0, 0, 0));
+    scene.addEventListener(
+        'update',
+        function () {
+            scene.simulate(undefined, 1);
+
+        }
+    );
 
     var spaceshipModel = new THREE.Group();
     var wall = new THREE.Group();
@@ -53,7 +53,7 @@ window.onload = function () {
     var rotateZRight = false;
     var curRotLeftRight = 0;
     var CurRotUpDown = 0;
-    var sideSpeed = 0.25;
+    var sideSpeed = 0.5;
     var curRotY = 0;
     var curRotZ = 0;
     var noseTurnSpeed = 0.03;
@@ -110,26 +110,29 @@ window.onload = function () {
         //var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
         // scene.add(directionalLight);
 
+        //#region borders
         var borderGeo = new THREE.BoxBufferGeometry(1000, 20, 10);
-        var borderMat = new THREE.MeshBasicMaterial({color: 0x00FFFF});
+        var borderMat = new THREE.MeshBasicMaterial({ color: 0x00FFFF });
         var borderRight = new THREE.Mesh(borderGeo, borderMat);
         var borderLeft = new THREE.Mesh(borderGeo, borderMat);
         borderRight.position.set(100, 9.5, 0);
         borderLeft.position.set(100, 9.5, 50);
 
         var edgeRight = new THREE.EdgesGeometry(borderGeo);
-        var lineRight = new THREE.LineSegments(edgeRight, new THREE.LineBasicMaterial({color: 0x000000}))
+        var lineRight = new THREE.LineSegments(edgeRight, new THREE.LineBasicMaterial({ color: 0x000000 }))
         lineRight.position.set(100, 9.5, 0.1);
 
         var edgeLeft = new THREE.EdgesGeometry(borderGeo);
-        var lineLeft = new THREE.LineSegments(edgeLeft, new THREE.LineBasicMaterial({color: 0x000000}))
+        var lineLeft = new THREE.LineSegments(edgeLeft, new THREE.LineBasicMaterial({ color: 0x000000 }))
         lineLeft.position.set(100, 9.5, 49.9);
 
-        
+
         scene.add(borderRight);
         scene.add(borderLeft);
         scene.add(lineRight);
         scene.add(lineLeft);
+
+
 
         var geometry = new THREE.PlaneGeometry(1000, 100, 100);
         var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
@@ -143,10 +146,13 @@ window.onload = function () {
 
         scene.add(borderBottom);
         scene.add(borderTop);
+        //#endregion
 
         spaceship(shipChoice);
 
-        playMusic();
+        //playMusic();
+        requestAnimationFrame(animate);
+        scene.simulate();
     }
 
     function onWindowResize() {
@@ -254,50 +260,46 @@ window.onload = function () {
         if (curRotY < -0.01) {
             rotateYRight = true;
         }
-        if( curRotZ < -0.01 )
-        {
+        if (curRotZ < -0.01) {
             rotateZRight = true;
         }
-        if( curRotZ > 0.01 )
-        {
+        if (curRotZ > 0.01) {
             rotateZLeft = true;
         }
-        if(CurRotUpDown > 0.01)
-        {
+        if (CurRotUpDown > 0.01) {
             rotateDown = true;
         }
-        if(CurRotUpDown < -0.01)
-        {
+        if (CurRotUpDown < -0.01) {
             rotateUp = true;
         }
     }
 
-    function BuildAWall(amount){
+    function BuildAWall(amount) {
         wall = new THREE.Group();
         var z = 0;
         console.log(amount);
 
-        for(var i = 0; i < 10; i++){
+        for (var i = 0; i < 10; i++) {
             var geo = new THREE.BoxGeometry(10, 20, 4);
-            var meshWall = new THREE.MeshBasicMaterial({color: 0xFF0000});
+            var meshWall = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
             var wallPiece = new THREE.Mesh(geo, meshWall);
 
-            
-            if(i == amount){
+
+            if (i == amount) {
                 z += 4;
                 continue;
             }
-            if(i == amount + 1){
+            if (i == amount + 1) {
                 z += 4;
                 continue;
             }
-            if(i == amount - 1 && amount == 9){
+            if (i == amount - 1 && amount == 9) {
                 z += 4;
                 continue;
             }
-            
+
             wallPiece.position.set(0, 9.5, z + 7);
-            
+
             wall.add(wallPiece);
             z += 4;
         }
@@ -314,41 +316,43 @@ window.onload = function () {
             //cameraControls.update();
             updateScore();
 
-            gameSpeed += 0.00025*pause;
-                
+            gameSpeed += 0.00025 * pause;
+
             group.position.x += gameSpeed * pause;
             wall.position.x += gameSpeed * pause;
+
+            //#region movement
             if (group.position.x > 300 && wall.position.x > 120) {
                 scene.remove(group);
                 scene.remove(wall);
                 var random = Math.ceil(Math.random() * 2);
 
-                switch (random){
+                switch (random) {
                     case 1:
-                    MakeObject();
-                    break;
+                        MakeObject();
+                        break;
                     case 2:
-                    BuildAWall(Math.ceil(Math.random() * 9))
-                    break;
+                        BuildAWall(Math.ceil(Math.random() * 9))
+                        break;
                 }
             }
 
             if (moveRight == true) {
-                spaceshipModel.position.z -= sideSpeed * pause; 
+                spaceshipModel.position.z -= sideSpeed * pause;
                 camera.position.z -= sideSpeed * pause;
 
-                if(curRotLeftRight < 0.5 && curRotLeftRight > -0.6){ //zorgt voor draaiing over eigen as naar rechts
+                if (curRotLeftRight < 0.5 && curRotLeftRight > -0.6) { //zorgt voor draaiing over eigen as naar rechts
                     curRotLeftRight += rotationSpeed;
                     spaceshipModel.rotation.x -= rotationSpeed * pause;
                 }
-                if(curRotLeftRight > 0.45) //als de rotatie over eigen as voldoende is, draai het schip naar rechts
+                if (curRotLeftRight > 0.45) //als de rotatie over eigen as voldoende is, draai het schip naar rechts
                 {
-                    if(curRotY < 0.3 && curRotY > -0.4){
+                    if (curRotY < 0.3 && curRotY > -0.4) {
                         curRotY += noseTurnSpeed;
                         spaceshipModel.rotation.y -= noseTurnSpeed * pause;
                         //spaceshipModel.rotation.z -= noseTurnSpeed * pause;
                     }
-                    if(curRotZ < 0.3 && curRotZ > -0.4) //test
+                    if (curRotZ < 0.3 && curRotZ > -0.4) //test
                     {
                         curRotZ += noseTurnSpeed;
                         spaceshipModel.rotation.z -= noseTurnSpeed * pause;
@@ -359,18 +363,18 @@ window.onload = function () {
                 spaceshipModel.position.z += sideSpeed * pause;
                 camera.position.z += sideSpeed * pause;
 
-                if(curRotLeftRight < 0.6 && curRotLeftRight > -0.5){ //zorgt voor draaiing over eigen as naar links
+                if (curRotLeftRight < 0.6 && curRotLeftRight > -0.5) { //zorgt voor draaiing over eigen as naar links
                     curRotLeftRight -= rotationSpeed;
                     spaceshipModel.rotation.x += rotationSpeed * pause;
                 }
-                if(curRotLeftRight<-0.45) //als de rotatie over eigen as voldoende is, draai het schip naar links
+                if (curRotLeftRight < -0.45) //als de rotatie over eigen as voldoende is, draai het schip naar links
                 {
-                    if(curRotY < 0.4 && curRotY > -0.3){
+                    if (curRotY < 0.4 && curRotY > -0.3) {
                         curRotY -= noseTurnSpeed;
                         spaceshipModel.rotation.y += noseTurnSpeed * pause;
                         //spaceshipModel.rotation.z += noseTurnSpeed * pause;
                     }
-                    if(curRotZ < 0.4 && curRotZ > -0.3) //test
+                    if (curRotZ < 0.4 && curRotZ > -0.3) //test
                     {
                         curRotZ += noseTurnSpeed;
                         spaceshipModel.rotation.z -= noseTurnSpeed * pause;
@@ -380,21 +384,21 @@ window.onload = function () {
             if (moveUp == true) {
                 spaceshipModel.position.y += 0.2 * pause;
                 camera.position.y += 0.2 * pause;
-                    if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
-                        CurRotUpDown += noseTurnSpeed;
-                        spaceshipModel.rotation.z -= noseTurnSpeed * pause;
-                    }
+                if (CurRotUpDown < 0.3 && CurRotUpDown > -0.3) {
+                    CurRotUpDown += noseTurnSpeed;
+                    spaceshipModel.rotation.z -= noseTurnSpeed * pause;
+                }
             }
             if (moveDown == true) {
                 spaceshipModel.position.y -= 0.2 * pause;
                 camera.position.y -= 0.2 * pause;
-                    if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
-                        CurRotUpDown -= noseTurnSpeed;
-                        spaceshipModel.rotation.z += noseTurnSpeed * pause;
-                    }
+                if (CurRotUpDown < 0.3 && CurRotUpDown > -0.3) {
+                    CurRotUpDown -= noseTurnSpeed;
+                    spaceshipModel.rotation.z += noseTurnSpeed * pause;
+                }
             }
             if (rotateRight == true) { //roteert het schip zijn rol over eigen as terug naar rechtop
-                if(curRotLeftRight > 0.01){
+                if (curRotLeftRight > 0.01) {
                     spaceshipModel.rotation.x += 0.05 * pause;
                     curRotLeftRight -= 0.05;
                 } else {
@@ -402,7 +406,7 @@ window.onload = function () {
                 }
             }
             if (rotateLeft == true) { //roteert het schip zijn rol over eigen as terug naar rechtop
-                if(curRotLeftRight < -0.01){
+                if (curRotLeftRight < -0.01) {
                     spaceshipModel.rotation.x -= 0.05 * pause;
                     curRotLeftRight += 0.05;
                 } else {
@@ -410,8 +414,8 @@ window.onload = function () {
                 }
             }
             if (rotateYLeft == true) {
-                
-                if(curRotY > 0.01){
+
+                if (curRotY > 0.01) {
                     spaceshipModel.rotation.y += 0.05 * pause;
                     curRotY -= 0.05;
                 } else {
@@ -419,8 +423,8 @@ window.onload = function () {
                 }
             }
             if (rotateYRight == true) {
-                
-                if(curRotY < -0.01){
+
+                if (curRotY < -0.01) {
                     spaceshipModel.rotation.y -= 0.05 * pause;
                     curRotY += 0.05;
                 } else {
@@ -428,39 +432,40 @@ window.onload = function () {
                 }
             }
             if (rotateZLeft == true) {
-                
-                if(curRotZ > 0.01){
+
+                if (curRotZ > 0.01) {
                     spaceshipModel.rotation.z += 0.05 * pause;
                     curRotZ -= 0.05;
-                }else {
+                } else {
                     rotateZLeft = false;
                 }
             }
             if (rotateZRight == true) {
-                
-                if(curRotZ > 0.01){
+
+                if (curRotZ > 0.01) {
                     spaceshipModel.rotation.z -= 0.05 * pause;
                     curRotZ -= 0.05;
-                }else {
+                } else {
                     rotateZRight = false;
                 }
             }
             if (rotateUp == true) {
-                if(CurRotUpDown < -0.01){
+                if (CurRotUpDown < -0.01) {
                     spaceshipModel.rotation.z -= 0.03 * pause;
                     CurRotUpDown += 0.03;
-                }else{
+                } else {
                     rotateUp = false;
                 }
             }
             if (rotateDown == true) {
-                if(CurRotUpDown > 0.01){
+                if (CurRotUpDown > 0.01) {
                     spaceshipModel.rotation.z += 0.03 * pause;
                     CurRotUpDown -= 0.03;
-                }else{
+                } else {
                     rotateDown = false;
                 }
             }
+            //#endregion
         }, 1000 / 60);
 
         //renderer.render();
@@ -468,7 +473,54 @@ window.onload = function () {
     }
 
     function spaceship(choice) {
-        var scale, shipX = 0, shipY = 0, shipZ = 0, path, obj, mtl, shipRotationX = 0, shipRotationY = 0, shipRotationZ = 0;
+        var scale, shipX = 0, shipY = 0, shipZ = 0, path, obj, mtl, shipRotationX = 0, shipRotationY = 0, shipRotationZ = 0, mat;
+
+        //#region hitbox
+        mat = Physijs.createMaterial(
+            new THREE.MeshBasicMaterial({ color: 0xfff }),
+            .6, // medium friction
+            .3 // low restitution
+        );
+
+        var hitbox = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(5, 0, 3),
+            mat
+        );
+        hitbox.position.set(0, 0, 0);
+        hitbox.material.transparent = true;
+        hitbox.material.opacity = 0;
+
+        var hitboxBack = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(0, 0.5, 7),
+            mat
+        );
+        hitboxBack.position.set(2.5, 0, 0);
+        hitboxBack.material.transparent = true;
+        hitboxBack.material.opacity = 0;
+
+        var hitboxUpDown = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(1, 3, 3),
+            mat
+        );
+        hitboxUpDown.position.set(2.5, 0, 0);
+        hitboxUpDown.material.transparent = true;
+        hitboxUpDown.material.opacity = 0;
+
+        hitbox.add(hitboxBack);
+        hitbox.add(hitboxUpDown);
+
+        hitbox.collisions = 0;
+
+        hitbox.addEventListener('collision', collisionHandler);
+
+        // hitboxFront.addEventListener('collision', collisionHandler);
+        // hitboxBack.addEventListener('collision', collisionHandler);
+        // hitboxUpDown.addEventListener('collision', collisionHandler);
+
+
+        spaceshipModel.add(hitbox);
+        //#endregion
+        
         switch (choice) {
             case '1':
                 scale = 0.01;
@@ -522,39 +574,8 @@ window.onload = function () {
                         object.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                     });
             });
-
-        var hitboxFront = new Physijs.BoxMesh(
-            new THREE.BoxGeometry(200, 50, 500),
-            new THREE.MeshBasicMaterial({ color: 0xfff })
-        );
-        hitboxFront.position.z = 50;
-        hitboxFront.material.transparent = true;
-        hitboxFront.material.opacity = 0;
-
-        var hitboxBack = new Physijs.BoxMesh(
-            new THREE.BoxGeometry(1000, 50, 200),
-            new THREE.MeshBasicMaterial({ color: 0x888888 })
-        );
-        hitboxBack.position.z = -200;
-        hitboxBack.material.transparent = true;
-        hitboxBack.material.opacity = 0;
-
-        var hitboxUpDown = new Physijs.BoxMesh(
-            new THREE.BoxGeometry(300, 300, 200),
-            new THREE.MeshBasicMaterial({ color: 0xF4F1F2 })
-        );
-        hitboxUpDown.position.z = -200;
-        hitboxUpDown.material.transparent = true;
-        hitboxUpDown.material.opacity = 0;
-
-        hitboxFront.addEventListener( 'collision', collisionHandler);
-        hitboxBack.addEventListener( 'collision', collisionHandler);
-        hitboxUpDown.addEventListener( 'collision', collisionHandler);
-        
-
-        spaceshipModel.add(hitboxFront);
-        spaceshipModel.add(hitboxBack);
-        spaceshipModel.add(hitboxUpDown);
+        // spaceshipModel.add(hitboxBack);
+        // spaceshipModel.add(hitboxUpDown);
     }
 
     function playMusic() {
@@ -576,9 +597,9 @@ window.onload = function () {
         audio.play();
     }
 
-    function collisionHandler( other_object, relative_velocity, relative_rotation, contact_normal ) {
+    function collisionHandler(other_object, relative_velocity, relative_rotation, contact_normal) {
         // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
-        if(this.collisions != 0) {
+        if (this.collisions != 0) {
             console.log("hit");
         }
     }
