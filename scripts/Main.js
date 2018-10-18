@@ -9,19 +9,18 @@ window.onload = function () {
 
     var renderer = new THREE.WebGLRenderer();
 
-    scene.setGravity(new THREE.Vector3(0, -10, 0));
+    scene.setGravity(new THREE.Vector3(0, 0, 0));
     scene.addEventListener(
         'update',
         function () {
             scene.simulate(undefined, 1);
-
         }
     );
 
     var spaceshipModel = new THREE.Group();
     var wall = new THREE.Group();
 
-    var audio, camera, group, cameraControls;
+    var audio, camera, group, cameraControls, hitbox;
     // end template here
 
     //schipvariabelen
@@ -76,7 +75,7 @@ window.onload = function () {
         // camera
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 150);
         //cameraControls = new THREE.OrbitControls(camera);
-        camera.position.set(93, 3, 10);
+        camera.position.set(93, 7, 15);
         camera.rotation.y = 180 * (Math.PI / 360);
         //cameraControls.update();
         scene.add(camera);
@@ -124,59 +123,65 @@ window.onload = function () {
         var edgeLeft = new THREE.EdgesGeometry(borderGeo);
         var lineLeft = new THREE.LineSegments(edgeLeft, new THREE.LineBasicMaterial({ color: 0x000000 }));
         lineLeft.position.set(100, 9.5, 49.9);
-
-
+        
+        
         scene.add(borderRight);
         scene.add(borderLeft);
         scene.add(lineRight);
         scene.add(lineLeft);
-
-
-
-        var geometry = new THREE.PlaneGeometry(1000, 100, 100);
+        
+        
+        
+        var geometry = new THREE.BoxGeometry(500, 50, 2);
         var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
-
-        var borderBottom = new Physijs.PlaneMesh(
+        
+        var borderBottom = new Physijs.BoxMesh(
             geometry,
             material,
             0
-        );
-
-        var borderTop = new Physijs.PlaneMesh(
-            geometry,
-            material,
-            0
-        );
-
-        //var borderBottom = new THREE.Mesh(geometry, material);
-        //var borderTop = new THREE.Mesh(geometry, material);
-        borderBottom.rotation.x = Math.PI / 2.0;
-        borderTop.rotation.x = Math.PI / 2.0;
-
-        borderBottom.position.set(100, 19.5, 0);
-        borderTop.position.set(100, -0.5, 0);
-
+            );
+            
+            var borderTop = new Physijs.BoxMesh(
+                geometry,
+                material,
+                0
+                );
+                
+                //var borderBottom = new THREE.Mesh(geometry, material);
+                //var borderTop = new THREE.Mesh(geometry, material);
+                borderBottom.rotation.x = Math.PI / 2.0;
+                borderTop.rotation.x = Math.PI / 2.0;
+                
+                borderBottom.position.set(0, 20.5, 25);
+                borderTop.position.set(0, -1.5, 25);
+                
         scene.add(borderBottom);
         scene.add(borderTop);
         //#endregion
-
-        scene.add(spaceshipModel);
+        
+        
         spaceship(shipChoice);
+        //spaceshipModel.addEventListener("collision", collisionHandler);
+        scene.add(spaceshipModel);
 
+        
         //playMusic();
         requestAnimationFrame(animate);
+        console.log(spaceshipModel);
+        console.log(hitbox.uuid);
+        hitbox.addEventListener('collision', collisionHandler);
         scene.simulate();
     }
-
+    
     function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
-
+    
     function MakeObject() {
         group = new THREE.Group();
-
+        
         //Het laden van het model en de materials(textures)
         var mtlLoader = new THREE.MTLLoader();
         mtlLoader.setTexturePath("models/Obstacles/");
@@ -324,7 +329,12 @@ window.onload = function () {
 
             requestAnimationFrame(animate);
 
+            hitbox.__dirtyPosition = true;
+            hitbox.__dirtyRotation = true;
 
+            hitbox.position.set(spaceshipModel.position.x, spaceshipModel.position.y, spaceshipModel.position.z);
+            hitbox.rotation.set(spaceshipModel.rotation.x, spaceshipModel.rotation.y, spaceshipModel.rotation.z);
+            
 
             //cameraControls.update();
             updateScore();
@@ -375,6 +385,7 @@ window.onload = function () {
             if (moveLeft == true) {
                 spaceshipModel.position.z += sideSpeed * pause;
                 camera.position.z += sideSpeed * pause;
+                //hitbox.position.z += sideSpeed * pause;
 
                 if (curRotLeftRight < 0.6 && curRotLeftRight > -0.5) { //zorgt voor draaiing over eigen as naar links
                     curRotLeftRight -= rotationSpeed;
@@ -478,10 +489,12 @@ window.onload = function () {
                     rotateDown = false;
                 }
             }
+            
             //#endregion
         }, 1000 / 60);
 
         //renderer.render();
+        scene.simulate();
         renderer.render(scene, camera);
     }
 
@@ -495,11 +508,14 @@ window.onload = function () {
             .3 // low restitution
         );
 
-        var hitbox = new Physijs.BoxMesh(
+        hitbox = new Physijs.BoxMesh(
             new THREE.BoxGeometry(5, 0, 3),
-            mat
+            mat,
+            1
         );
-        hitbox.position.set(0, 0, 0);
+        hitbox.position.set(85, 5, 15);
+        console.log(hitbox);
+        hitbox.setLinearVelocity(0, 0, 0);
         //hitbox.material.transparent = true;
         hitbox.material.opacity = 0;
 
@@ -508,7 +524,7 @@ window.onload = function () {
             mat
         );
         hitboxBack.position.set(2.5, 0, 0);
-        //hitboxBack.material.transparent = true;
+        hitboxBack.material.transparent = true;
         hitboxBack.material.opacity = 0;
 
         var hitboxUpDown = new Physijs.BoxMesh(
@@ -524,16 +540,20 @@ window.onload = function () {
 
         hitbox.collisions = 0;
 
-        hitbox.addEventListener('collision', collisionHandler);
+        hitbox.name = "Kevin";
+        console.log(hitbox.name);
+        console.log(hitbox.uuid);
 
+        
         // hitboxFront.addEventListener('collision', collisionHandler);
         // hitboxBack.addEventListener('collision', collisionHandler);
         // hitboxUpDown.addEventListener('collision', collisionHandler);
-
-
-        spaceshipModel.add(hitbox);
+        
+        
+        scene.add(hitbox);        
+       
         //#endregion
-
+        
         switch (choice) {
             case '1':
                 scale = 0.01;
@@ -541,8 +561,8 @@ window.onload = function () {
                 obj = 'spaceship.obj';
                 mtl = 'spaceship.mtl';
                 shipX = 85;
-                shipY = 1;
-                shipZ = 10;
+                shipY = 5;
+                shipZ = 15;
                 shipRotationY = (Math.PI / 2) * 3;
                 break;
 
@@ -586,8 +606,8 @@ window.onload = function () {
                         object.scale.set(scale, scale, scale);
                         object.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
                     });
-            });
-        // spaceshipModel.add(hitboxBack);
+                });
+                // spaceshipModel.add(hitboxBack);
         // spaceshipModel.add(hitboxUpDown);
     }
 
@@ -631,7 +651,7 @@ window.onload = function () {
                 console.log("3 hit");
                 break;
         }
-        if (other_object.name !== "spaceship") {
+        if (other_object.name !== "spaceshipModel") {
             console.log("shap");
         }
     }
