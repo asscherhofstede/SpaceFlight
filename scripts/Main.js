@@ -9,6 +9,7 @@ window.onload = function () {
 
     var renderer = new THREE.WebGLRenderer();
 
+    var audio;
     scene.setGravity(new THREE.Vector3(0, 0, 0));
     scene.addEventListener(
         'update',
@@ -30,7 +31,7 @@ window.onload = function () {
     //gamevars
     var pause = 1;
     var gameSpeed = 0.5;
-
+  
     //spelerscore
     var playerScore = 1;
     var a = 1;
@@ -168,20 +169,18 @@ window.onload = function () {
                     resumeMusic();
                 }
         }
-    };    
-
+    };
+  
     function animate() {
         setTimeout(function () {
-
+            
             requestAnimationFrame(animate);
-
             hitbox.__dirtyPosition = true;
             hitbox.__dirtyRotation = true;
 
             hitbox.position.set(spaceshipModel.position.x, spaceshipModel.position.y, spaceshipModel.position.z);
             hitbox.rotation.set(spaceshipModel.rotation.x, spaceshipModel.rotation.y, spaceshipModel.rotation.z);
             
-
             //cameraControls.update();
             updateScore();
 
@@ -326,28 +325,7 @@ window.onload = function () {
                 // spaceshipModel.add(hitboxBack);
         // spaceshipModel.add(hitboxUpDown);
     }
-
-    //#region music
-    function playMusic() {
-        audio = new Audio('music/500miles.mp3');
-        audio.volume = 0.3;
-        console.log(audio);
-        audio.loop = true;
-        audio.play();
-
-    }
-
-    function pauseMusic() {
-        console.log("pause");
-        audio.pause();
-    }
-
-    function resumeMusic() {
-        console.log("play");
-        audio.play();
-    }
-    //#endregion
-
+  
     function collisionHandler(other_object, relative_velocity, relative_rotation, contact_normal) {
         // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
 
