@@ -6,16 +6,7 @@ window.onload = function () {
     var renderer = new THREE.WebGLRenderer();
 
     var audio;
-    // end template here
 
-    //skybox
-    // var skyboxgeo = new THREE.SphereGeometry(500, 32, 32);
-    // var skyboxmat = new THREE.MeshBasicMaterial({ color: new THREE.TextureLoader().load("textures/skybox.jpg"), side: THREE.DoubleSide });
-    // var skybox = new THREE.Mesh(skyboxgeo, skyboxmat);
-    // scene.add(skybox);
-
-    //schipvariabelen
-    //var shipChoice = prompt("voer een 1 in voor een generiek ruimteschip, 2 voor een spaceshuttle en 3 voor een vliegtuigje");
     var shipChoice = '1';
     var rotationSpeed = 0.05; //de snelheid van de rotatie
 
@@ -38,7 +29,7 @@ window.onload = function () {
     var rotateZRight = false;
     var curRotLeftRight = 0;
     var CurRotUpDown = 0;
-    var sideSpeed = 0.25;
+    var sideSpeed = 0.5;
     var curRotY = 0;
     var curRotZ = 0;
     var noseTurnSpeed = 0.03;
@@ -161,7 +152,6 @@ window.onload = function () {
             moveRight = true;
         } else if (keyCode == 38) { // up key voor naar boven
             moveUp = true;
-            
         } else if (keyCode == 40) { //down key voor naar beneden
             moveDown = true;
         } else if (keyCode == 80) { //down key voor naar pause
@@ -172,6 +162,10 @@ window.onload = function () {
                 pause = 1;
                 resumeMusic();
             }
+        }else if (keyCode == 107){
+            louderMusic();
+        }else if (keyCode == 109){
+            softerMusic();
         }
     };
 
@@ -179,13 +173,7 @@ window.onload = function () {
     function onDocumentKeyUp(event) {
         var keyCode = event.which;
 
-        if (keyCode == 90) {  //z key voor rotatie over rechts
-            //rotateRight = false;
-
-        } else if (keyCode == 88) { // x key voor rotatie over links
-            //rotateLeft = false;
-
-        } else if (keyCode == 37) { // left key voor bewegen naar links
+        if (keyCode == 37) { // left key voor bewegen naar links
             moveLeft = false;
             stabiliseerSchip();
         } else if (keyCode == 39) { // right key voor bewegen naar rechts
@@ -235,13 +223,12 @@ window.onload = function () {
             rotateUp = true;
         }
     }
-
+  
+    
     function animate() {
         setTimeout(function () {
-
+            
             requestAnimationFrame(animate);
-
-
 
             //cameraControls.update();
             updateScore();
@@ -299,6 +286,9 @@ window.onload = function () {
                     }
                 }
             }
+            if(moveRight == true && moveLeft == true){
+                stabiliseerSchip();
+            }
             if (moveUp == true) {
                 spaceshipModel.position.y += 0.2 * pause;
                 camera.position.y += 0.2 * pause;
@@ -350,7 +340,7 @@ window.onload = function () {
                 }
             }
             if (rotateZLeft == true) {
-                
+        
                 if(curRotZ > 0.01){
                     spaceshipModel.rotation.z += 0.05 * pause;
                     curRotZ -= 0.05;
@@ -446,24 +436,7 @@ window.onload = function () {
             });
     }
 
-    function playMusic() {
-        audio = new Audio('music/500miles.mp3');
-        audio.volume = 0.3;
-        console.log(audio);
-        audio.loop = true;
-        audio.play();
-        
-    }
 
-    function pauseMusic() {
-        console.log("pause");
-        audio.pause();
-    }
-
-    function resumeMusic() {
-        console.log("play");        
-        audio.play();
-    }
 
     init();
     MakeObject();
