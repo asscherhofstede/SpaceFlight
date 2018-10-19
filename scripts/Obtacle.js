@@ -31,11 +31,15 @@ function BuildAWall(amount){
     var z = 0;
 
     for(var i = 0; i < 10; i++){
+
         var geo = new THREE.BoxGeometry(10, 20, 4);
         var meshWall = new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/Obstacle/Wall.jpg")});
-        var wallPiece = new THREE.Mesh(geo, meshWall);
+        var wallPiece = new Physijs.BoxMesh(
+            geo,
+            meshWall,
+            0
+        );
 
-        
         if(i == amount){
             z += 4;
             continue;
