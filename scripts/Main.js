@@ -17,7 +17,7 @@ window.onload = function () {
     );
 
     var spaceshipModel = new THREE.Group();
-    var wall = new THREE.Group();
+    var wall;
 
     var audio, camera, group, cameraControls, hitbox;
 
@@ -66,7 +66,7 @@ window.onload = function () {
         scene.add(light);
 
         //#region borders
-        var borderGeo = new THREE.BoxGeometry(1000, 20, 10);
+        var borderGeo = new THREE.BoxGeometry(500, 20, 10);
         var borderMat = Physijs.createMaterial(
             new THREE.MeshBasicMaterial({ color: 0x00FFFF }),
             .8, // high friction
@@ -85,8 +85,8 @@ window.onload = function () {
             0
         );
 
-        borderRight.position.set(100, 9.5, 0);
-        borderLeft.position.set(100, 9.5, 50);
+        borderRight.position.set(0, 9.5, 0);
+        borderLeft.position.set(0, 9.5, 50);
 
         var edgeRight = new THREE.EdgesGeometry(borderGeo);
         var lineRight = new THREE.LineSegments(edgeRight, new THREE.LineBasicMaterial({ color: 0x000000 }));
@@ -138,8 +138,6 @@ window.onload = function () {
 
         playMusic();
         requestAnimationFrame(animate);
-        console.log(spaceshipModel);
-        console.log(hitbox.uuid);
         hitbox.addEventListener('collision', collisionHandler);
         scene.simulate();
     }
@@ -177,15 +175,20 @@ window.onload = function () {
             //cameraControls.update();
             updateScore();
 
-            gameSpeed += 0.00025 * pause;
+            
+            gameSpeed += 0.000015 * pause;
 
-            group.position.x += gameSpeed * pause;
+            //group.position.x += gameSpeed * pause;
             wall.position.x += gameSpeed * pause;
 
-            if (group.position.x > 300 && wall.position.x > 200) {
-                scene.remove(group);
+            wall.__dirtyPosition = true;
+            //wall.setLinearVelocity(new THREE.Vector3(25 + gameSpeed, 0, 0));
+
+            //console.log(wall.position.x);
+
+            if (wall.position.x > 120) {
                 scene.remove(wall);
-                var random = Math.ceil(Math.random() * 2);
+                var random = 1 // Math.ceil(Math.random() * 2);
 
                 switch (random) {
                     case 1:
@@ -194,9 +197,11 @@ window.onload = function () {
                         break;
                 }
             }
+            
+            scene.simulate();
             AnimateSpaceshipM(spaceshipModel, camera);
 
-        }, 1000 / 60);
+        });
 
         renderer.render(scene, camera);
     }
@@ -278,9 +283,9 @@ window.onload = function () {
 
     }
 
-
     init();
-    group = BuildAWall(Math.ceil(Math.random() * 9));
-    scene.add(group);
+    wall = BuildAWall(Math.ceil(Math.random() * 9), scene);
+    scene.add(wall);
+    console.log(wall);
     animate();
 };

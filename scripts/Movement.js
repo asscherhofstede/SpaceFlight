@@ -117,16 +117,16 @@ function AnimateSpaceshipM(spaceshipModel, camera){
         }
     }
     if (moveUp == true) {
-        spaceshipModel.position.y += 0.2 * pause;
-        camera.position.y += 0.2 * pause;
+        spaceshipModel.position.x += 0.2 * pause;
+        camera.position.x += 0.2 * pause;
             if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
                 CurRotUpDown += noseTurnSpeed;
                 spaceshipModel.rotation.z -= noseTurnSpeed * pause;
             }
     }
     if (moveDown == true) {
-        spaceshipModel.position.y -= 0.2 * pause;
-        camera.position.y -= 0.2 * pause;
+        spaceshipModel.position.x -= 0.2 * pause;
+        camera.position.x -= 0.2 * pause;
             if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
                 CurRotUpDown -= noseTurnSpeed;
                 spaceshipModel.rotation.z += noseTurnSpeed * pause;

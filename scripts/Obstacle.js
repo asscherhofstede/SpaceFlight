@@ -26,14 +26,19 @@ function MakeObject() {
 }
 
 //Bouw een muur
-function BuildAWall(amount){
-    wall = new THREE.Group();
-    var z = 0;
+function BuildAWall(amount, scene){
+    var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));
+    wall.position.set(0, 0, -10);
+    var z = 10;
 
     for(var i = 0; i < 10; i++){
 
         var geo = new THREE.BoxGeometry(10, 20, 4);
-        var meshWall = new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/Obstacle/Wall.jpg")});
+        var meshWall = Physijs.createMaterial(
+            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/Obstacle/Wall.jpg")}),
+            0, // high friction
+            0 // low restitution
+        );
         var wallPiece = new Physijs.BoxMesh(
             geo,
             meshWall,
@@ -52,7 +57,7 @@ function BuildAWall(amount){
             z += 4;
             continue;
         }
-        wallPiece.position.set(-100, 9.5, z + 7);
+        wallPiece.position.set(-50, 9.5, z + 7);
         
         wall.add(wallPiece);
         z += 4;
