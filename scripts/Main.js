@@ -8,8 +8,6 @@ window.onload = function () {
     var scene = new Physijs.Scene;
 
     var renderer = new THREE.WebGLRenderer();
-
-    var audio;
     scene.setGravity(new THREE.Vector3(0, 0, 0));
     scene.addEventListener(
         'update',
@@ -144,7 +142,7 @@ window.onload = function () {
         scene.add(spaceshipModel);
 
         
-        //playMusic();
+        playMusic();
         requestAnimationFrame(animate);
         console.log(spaceshipModel);
         console.log(hitbox.uuid);
@@ -175,6 +173,7 @@ window.onload = function () {
         setTimeout(function () {
             
             requestAnimationFrame(animate);
+
             hitbox.__dirtyPosition = true;
             hitbox.__dirtyRotation = true;
 
@@ -190,7 +189,7 @@ window.onload = function () {
             wall.position.x += gameSpeed * pause;
 
             //#region movement
-            if (group.position.x > 300 && wall.position.x > 120) {
+            if (group.position.x > 300 && wall.position.x > 200) {
                 scene.remove(group);
                 scene.remove(wall);
                 var random = Math.ceil(Math.random() * 2);
