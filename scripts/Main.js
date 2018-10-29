@@ -6,6 +6,7 @@ window.onload = function () {
     Physijs.scripts.ammo = 'ammo.js';
 
     var scene = new Physijs.Scene;
+    var borderMat, material;
 
     var renderer = new THREE.WebGLRenderer();
     scene.setGravity(new THREE.Vector3(0, 0, 0));
@@ -67,7 +68,7 @@ window.onload = function () {
 
         //#region borders
         var borderGeo = new THREE.BoxGeometry(500, 20, 10);
-        var borderMat = Physijs.createMaterial(
+        borderMat = Physijs.createMaterial(
             new THREE.MeshBasicMaterial({ color: 0x00FFFF }),
             .8, // high friction
             .3 // low restitution
@@ -105,7 +106,7 @@ window.onload = function () {
 
 
         var geometry = new THREE.BoxGeometry(500, 50, 0.1);
-        var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
+        material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
         var borderBottom = new Physijs.BoxMesh(
             geometry,
@@ -178,11 +179,9 @@ window.onload = function () {
             
             gameSpeed += 0.000015 * pause;
 
-            //group.position.x += gameSpeed * pause;
             wall.position.x += gameSpeed * pause;
 
             wall.__dirtyPosition = true;
-            //wall.setLinearVelocity(new THREE.Vector3(25 + gameSpeed, 0, 0));
 
             //console.log(wall.position.x);
 
@@ -200,7 +199,6 @@ window.onload = function () {
             
             scene.simulate();
             AnimateSpaceshipM(spaceshipModel, camera);
-
         });
 
         renderer.render(scene, camera);
@@ -269,6 +267,7 @@ window.onload = function () {
         switch (++this.collisions) {
             case 1:
                 console.log("1 hit");
+                //End Game
                 break;
             case 2:
                 console.log("2 hit");
