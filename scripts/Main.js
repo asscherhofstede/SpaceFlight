@@ -297,7 +297,7 @@ window.onload = function () {
     }
 
     init();
-    wall = BuildAWall(Math.ceil(Math.random() * 9), scene);
+    wall = BuildAWall(Math.ceil(Math.random() * 9));
     scene.add(wall);
     console.log(wall);
     animate();

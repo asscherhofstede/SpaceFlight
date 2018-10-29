@@ -48,15 +48,12 @@ function MakeObject() {
 }
 
 //Bouw een muur
-function BuildAWall(amount, scene){
+function BuildAWall(amount){
     var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));
     wall.position.set(0, 0, -10);
 
     var z = 10;
     for(var i = 0; i < 10; i++){
-
-       
-        
         var wallPiece = new Physijs.BoxMesh(
             geo,
             meshWall,
@@ -81,10 +78,9 @@ function BuildAWall(amount, scene){
         z += 4;
     }
     return wall;
+}
 
-
-function smileyWall()
-{
+function smileyWall(){
     wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));
     wall.position.set(0, 0, -10);
     var z = 10;
@@ -122,8 +118,7 @@ function smileyWall()
     return wall;
 }
 
-function hoekenUitWall()
-{
+function hoekenUitWall(){
     wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));
     wall.position.set(0, 0, -10);
     var z = 10;
@@ -179,8 +174,7 @@ function hoekenUitWall()
 }
 
 
-function lolWall()
-{
+function lolWall(){
 
     var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));;
     wall.position.set(0, 0, -10);
@@ -232,6 +226,5 @@ function lolWall()
             }
         }
     }
-
     return wall;
 }
