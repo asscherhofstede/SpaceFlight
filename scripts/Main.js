@@ -6,7 +6,6 @@ window.onload = function () {
     Physijs.scripts.ammo = 'ammo.js';
 
     var scene = new Physijs.Scene;
-    var borderMat, material;
 
     var renderer = new THREE.WebGLRenderer();
     scene.setGravity(new THREE.Vector3(0, 0, 0));
@@ -68,7 +67,7 @@ window.onload = function () {
 
         //#region borders
         var borderGeo = new THREE.BoxGeometry(500, 20, 10);
-        borderMat = Physijs.createMaterial(
+        var borderMat = Physijs.createMaterial(
             new THREE.MeshBasicMaterial({ color: 0x00FFFF }),
             .8, // high friction
             .3 // low restitution
@@ -106,7 +105,7 @@ window.onload = function () {
 
 
         var geometry = new THREE.BoxGeometry(500, 50, 0.1);
-        material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
+        var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
         var borderBottom = new Physijs.BoxMesh(
             geometry,
@@ -179,19 +178,33 @@ window.onload = function () {
             
             gameSpeed += 0.000015 * pause;
 
+            //group.position.x += gameSpeed * pause;
             wall.position.x += gameSpeed * pause;
 
             wall.__dirtyPosition = true;
+            //wall.setLinearVelocity(new THREE.Vector3(25 + gameSpeed, 0, 0));
 
             //console.log(wall.position.x);
 
-            if (wall.position.x > 120) {
+            if (wall.position.x > 200) {
                 scene.remove(wall);
-                var random = 1 // Math.ceil(Math.random() * 2);
+                var random = 4; // Math.ceil(Math.random() * 2);
 
                 switch (random) {
                     case 1:
                         wall = BuildAWall(Math.ceil(Math.random() * 9));
+                        scene.add(wall);
+                        break;
+                    case 2:
+                        wall = smileyWall();
+                        scene.add(wall);
+                        break;
+                    case 3:
+                        wall = hoekenUitWall();
+                        scene.add(wall);
+                        break;
+                    case 4:
+                        wall = lolWall();
                         scene.add(wall);
                         break;
                 }
@@ -199,6 +212,7 @@ window.onload = function () {
             
             scene.simulate();
             AnimateSpaceshipM(spaceshipModel, camera);
+
         });
 
         renderer.render(scene, camera);
