@@ -74,67 +74,82 @@ function onDocumentKeyUp(event) {
 function AnimateSpaceshipM(spaceshipModel, camera){
     //console.log(moveLeft);
     if (moveRight == true) {
-        spaceshipModel.position.z -= sideSpeed * pause; 
-        camera.position.z -= sideSpeed * pause;
-
-        if(curRotLeftRight < 0.5 && curRotLeftRight > -0.6){ //zorgt voor draaiing over eigen as naar rechts
-            curRotLeftRight += rotationSpeed;
-            spaceshipModel.rotation.x -= rotationSpeed * pause;
+        //Kijken of je bij de rechter border bent
+        if(spaceshipModel.position.z >= 7.5){
+            spaceshipModel.position.z -= sideSpeed; 
+            camera.position.z -= sideSpeed;
+            
+            if(curRotLeftRight < 0.5 && curRotLeftRight > -0.6){ //zorgt voor draaiing over eigen as naar rechts
+                curRotLeftRight += rotationSpeed;
+                spaceshipModel.rotation.x -= rotationSpeed;
+            }
         }
-        if(curRotLeftRight > 0.45) //als de rotatie over eigen as voldoende is, draai het schip naar rechts
+
+        if(curRotLeftRight > 0.45) //als de rotatie over eigen as voldoede is, draai het schip naar rechts
         {
             if(curRotY < 0.3 && curRotY > -0.4){
                 curRotY += noseTurnSpeed;
-                spaceshipModel.rotation.y -= noseTurnSpeed * pause;
+                spaceshipModel.rotation.y -= noseTurnSpeed;
             }
             if(curRotZ < 0.3 && curRotZ > -0.4) //test
             {
                 curRotZ += noseTurnSpeed;
-                spaceshipModel.rotation.z -= noseTurnSpeed * pause;
+                spaceshipModel.rotation.z -= noseTurnSpeed;
             }
         }
     }
     if (moveLeft == true) {
-        spaceshipModel.position.z += sideSpeed * pause;
-        camera.position.z += sideSpeed * pause;
-
-        if(curRotLeftRight < 0.6 && curRotLeftRight > -0.5){ //zorgt voor draaiing over eigen as naar links
-            curRotLeftRight -= rotationSpeed;
-            spaceshipModel.rotation.x += rotationSpeed * pause;
+        //Kijken of je bij de linker border bent
+        if(spaceshipModel.position.z <= 42.5){
+            spaceshipModel.position.z += sideSpeed;
+            camera.position.z += sideSpeed;
+            
+            if(curRotLeftRight < 0.6 && curRotLeftRight > -0.5){ //zorgt voor draaiing over eigen as naar links
+                curRotLeftRight -= rotationSpeed;
+                spaceshipModel.rotation.x += rotationSpeed;
+            }
         }
+
         if(curRotLeftRight<-0.45) //als de rotatie over eigen as voldoende is, draai het schip naar links
         {
             if(curRotY < 0.4 && curRotY > -0.3){
                 curRotY -= noseTurnSpeed;
-                spaceshipModel.rotation.y += noseTurnSpeed * pause;
-                //spaceshipModel.rotation.z += noseTurnSpeed * pause;
+                spaceshipModel.rotation.y += noseTurnSpeed;
             }
             if(curRotZ < 0.4 && curRotZ > -0.3) //test
             {
                 curRotZ += noseTurnSpeed;
-                spaceshipModel.rotation.z -= noseTurnSpeed * pause;
+                spaceshipModel.rotation.z -= noseTurnSpeed;
             }
         }
     }
     if (moveUp == true) {
-        spaceshipModel.position.y += 0.2 * pause;
-        camera.position.y += 0.2 * pause;
+        //Kijken of je bij de bovenste border bent
+        if(spaceshipModel.position.y <= 17.1){
+            spaceshipModel.position.y += 0.2;
+            camera.position.y += 0.2;
+            
             if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
                 CurRotUpDown += noseTurnSpeed;
-                spaceshipModel.rotation.z -= noseTurnSpeed * pause;
+                spaceshipModel.rotation.z -= noseTurnSpeed;
             }
+        }
     }
     if (moveDown == true) {
-        spaceshipModel.position.y -= 0.2 * pause;
-        camera.position.y -= 0.2 * pause;
+        //Kijken of je bij de onderste border bent
+        if(spaceshipModel.position.y >= 0.7){
+            spaceshipModel.position.y -= 0.2;
+            camera.position.y -= 0.2;
+            
             if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
                 CurRotUpDown -= noseTurnSpeed;
-                spaceshipModel.rotation.z += noseTurnSpeed * pause;
+                spaceshipModel.rotation.z += noseTurnSpeed;
             }
+        }
     }
     if (rotateRight == true) { //roteert het schip zijn rol over eigen as terug naar rechtop
         if(curRotLeftRight > 0.01){
-            spaceshipModel.rotation.x += 0.05 * pause;
+            spaceshipModel.rotation.x += 0.05;
             curRotLeftRight -= 0.05;
         } else {
             rotateRight = false;
@@ -142,7 +157,7 @@ function AnimateSpaceshipM(spaceshipModel, camera){
     }
     if (rotateLeft == true) { //roteert het schip zijn rol over eigen as terug naar rechtop
         if(curRotLeftRight < -0.01){
-            spaceshipModel.rotation.x -= 0.05 * pause;
+            spaceshipModel.rotation.x -= 0.05;
             curRotLeftRight += 0.05;
         } else {
             rotateLeft = false;
@@ -151,7 +166,7 @@ function AnimateSpaceshipM(spaceshipModel, camera){
     if (rotateYLeft == true) {
         
         if(curRotY > 0.01){
-            spaceshipModel.rotation.y += 0.05 * pause;
+            spaceshipModel.rotation.y += 0.05;
             curRotY -= 0.05;
         } else {
             rotateYLeft = false;
@@ -160,7 +175,7 @@ function AnimateSpaceshipM(spaceshipModel, camera){
     if (rotateYRight == true) {
         
         if(curRotY < -0.01){
-            spaceshipModel.rotation.y -= 0.05 * pause;
+            spaceshipModel.rotation.y -= 0.05;
             curRotY += 0.05;
         } else {
             rotateYRight = false;
@@ -168,7 +183,7 @@ function AnimateSpaceshipM(spaceshipModel, camera){
     }
     if (rotateZLeft == true) {
         if(curRotZ > 0.01){
-            spaceshipModel.rotation.z += 0.05 * pause;
+            spaceshipModel.rotation.z += 0.05;
             curRotZ -= 0.05;
         }else {
             rotateZLeft = false;
@@ -177,7 +192,7 @@ function AnimateSpaceshipM(spaceshipModel, camera){
     if (rotateZRight == true) {
         
         if(curRotZ > 0.01){
-            spaceshipModel.rotation.z -= 0.05 * pause;
+            spaceshipModel.rotation.z -= 0.05;
             curRotZ -= 0.05;
         }else {
             rotateZRight = false;
@@ -185,7 +200,7 @@ function AnimateSpaceshipM(spaceshipModel, camera){
     }
     if (rotateUp == true) {
         if(CurRotUpDown < -0.01){
-            spaceshipModel.rotation.z -= 0.03 * pause;
+            spaceshipModel.rotation.z -= 0.03;
             CurRotUpDown += 0.03;
         }else{
             rotateUp = false;
@@ -193,7 +208,7 @@ function AnimateSpaceshipM(spaceshipModel, camera){
     }
     if (rotateDown == true) {
         if(CurRotUpDown > 0.01){
-            spaceshipModel.rotation.z += 0.03 * pause;
+            spaceshipModel.rotation.z += 0.03;
             CurRotUpDown -= 0.03;
         }else{
             rotateDown = false;

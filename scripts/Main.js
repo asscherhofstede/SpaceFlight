@@ -29,7 +29,7 @@ window.onload = function () {
     var playerScore = 1;
     var a = 1;
     function updateScore() {
-        a += (0.25 * pause);
+        a += 0.25;
         playerScore = Math.round(a);
         //tekst
         var text2 = document.getElementById("score");
@@ -166,52 +166,49 @@ window.onload = function () {
 
             requestAnimationFrame(animate);
 
-            hitbox.__dirtyPosition = true;
-            hitbox.__dirtyRotation = true;
-
-            hitbox.position.set(spaceshipModel.position.x, spaceshipModel.position.y, spaceshipModel.position.z);
-            hitbox.rotation.set(spaceshipModel.rotation.x, spaceshipModel.rotation.y, spaceshipModel.rotation.z);
-
-            //cameraControls.update();
-            updateScore();
-
-            
-            gameSpeed += 0.000015 * pause;
-
-            //group.position.x += gameSpeed * pause;
-            wall.position.x += gameSpeed * pause;
-
-            wall.__dirtyPosition = true;
-            //wall.setLinearVelocity(new THREE.Vector3(25 + gameSpeed, 0, 0));
-
-            //console.log(wall.position.x);
-
-            if (wall.position.x > 200) {
-                scene.remove(wall);
-                var random = 4; // Math.ceil(Math.random() * 2);
-
-                switch (random) {
-                    case 1:
-                        wall = BuildAWall(Math.ceil(Math.random() * 9));
-                        scene.add(wall);
-                        break;
-                    case 2:
-                        wall = smileyWall();
-                        scene.add(wall);
-                        break;
-                    case 3:
-                        wall = hoekenUitWall();
-                        scene.add(wall);
-                        break;
-                    case 4:
-                        wall = lolWall();
-                        scene.add(wall);
-                        break;
+            if(pause == 1){
+                hitbox.__dirtyPosition = true;
+                hitbox.__dirtyRotation = true;
+    
+                hitbox.position.set(spaceshipModel.position.x, spaceshipModel.position.y, spaceshipModel.position.z);
+                hitbox.rotation.set(spaceshipModel.rotation.x, spaceshipModel.rotation.y, spaceshipModel.rotation.z);
+    
+                updateScore();
+                
+                gameSpeed += 0.000015;
+    
+                wall.position.x += gameSpeed;
+    
+                wall.__dirtyPosition = true;
+    
+                if (wall.position.x > 200) {
+                    scene.remove(wall);
+                    var random = 4; // Math.ceil(Math.random() * 2);
+    
+                    switch (random) {
+                        case 1:
+                            wall = BuildAWall(Math.ceil(Math.random() * 9));
+                            scene.add(wall);
+                            break;
+                        case 2:
+                            wall = smileyWall();
+                            scene.add(wall);
+                            break;
+                        case 3:
+                            wall = hoekenUitWall();
+                            scene.add(wall);
+                            break;
+                        case 4:
+                            wall = lolWall();
+                            scene.add(wall);
+                            break;
+                    }
                 }
+                
+                scene.simulate();
+                AnimateSpaceshipM(spaceshipModel, camera);
             }
-            
-            scene.simulate();
-            AnimateSpaceshipM(spaceshipModel, camera);
+
 
         });
 
