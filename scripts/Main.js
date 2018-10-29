@@ -1,38 +1,29 @@
 window.onload = function () {
-    
 
-    var spaceshipModel = new THREE.Group();
+    'use strict';
+
+    Physijs.scripts.worker = 'scripts/physijs_worker.js';
+    Physijs.scripts.ammo = 'ammo.js';
+
+    var scene = new Physijs.Scene;
 
     var renderer = new THREE.WebGLRenderer();
+    scene.setGravity(new THREE.Vector3(0, 0, 0));
+    scene.addEventListener(
+        'update',
+        function () {
+            scene.simulate(undefined, 1);
+        }
+    );
 
-    var audio;
+    var spaceshipModel = new THREE.Group();
+    var wall;
 
-    var shipChoice = '1';
-    var rotationSpeed = 0.05; //de snelheid van de rotatie
+    var audio, camera, group, cameraControls, hitbox;
 
     //gamevars
     var pause = 1;
-    var gameSpeed = 0.5;
-
-    //bewegingsvariabele
-    var moveRight = false;
-    var moveLeft = false;
-    var moveUp = false;
-    var moveDown = false;
-    var rotateLeft = false;
-    var rotateRight = false;
-    var rotateUp = false;
-    var rotateDown = false;
-    var rotateYLeft = false;
-    var rotateYRight = false;
-    var rotateZLeft = false;
-    var rotateZRight = false;
-    var curRotLeftRight = 0;
-    var CurRotUpDown = 0;
-    var sideSpeed = 0.5;
-    var curRotY = 0;
-    var curRotZ = 0;
-    var noseTurnSpeed = 0.03;
+    var gameSpeed = 0.25;
 
     //spelerscore
     var playerScore = 1;
@@ -53,18 +44,12 @@ window.onload = function () {
     }
 
     function init() {
-        scene = new THREE.Scene();
-
-        // camera 
-        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000000);
+        // camera
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 150);
         //cameraControls = new THREE.OrbitControls(camera);
-        //camera.position.set(103, 5, 10);
-
-        //camera.rotation.z = Math.PI / 2;
-        camera.position.set(93, 3, 10);
+        camera.position.set(65, 7, 20);
         camera.rotation.y = 180 * (Math.PI / 360);
         //cameraControls.update();
-        //scene.add(camera);
         scene.add(camera);
 
         document.addEventListener("keydown", onDocumentKeyDown, false);
@@ -77,29 +62,84 @@ window.onload = function () {
 
         window.addEventListener('resize', onWindowResize, false);
 
-
-        scene.add(spaceshipModel);
-
-        var light = new THREE.AmbientLight(0x404040);
+        var light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
 
-        //var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-        // scene.add(directionalLight);
+        //#region borders
+        var borderGeo = new THREE.BoxGeometry(500, 20, 10);
+        var borderMat = Physijs.createMaterial(
+            new THREE.MeshBasicMaterial({ color: 0x00FFFF }),
+            .8, // high friction
+            .3 // low restitution
+        );
+
+        var borderRight = new Physijs.BoxMesh(
+            borderGeo,
+            borderMat,
+            0
+        );
+
+        var borderLeft = new Physijs.BoxMesh(
+            borderGeo,
+            borderMat,
+            0
+        );
+
+        borderRight.position.set(0, 9.5, 0);
+        borderLeft.position.set(0, 9.5, 50);
+
+        var edgeRight = new THREE.EdgesGeometry(borderGeo);
+        var lineRight = new THREE.LineSegments(edgeRight, new THREE.LineBasicMaterial({ color: 0x000000 }));
+        lineRight.position.set(100, 9.5, 0.1);
+
+        var edgeLeft = new THREE.EdgesGeometry(borderGeo);
+        var lineLeft = new THREE.LineSegments(edgeLeft, new THREE.LineBasicMaterial({ color: 0x000000 }));
+        lineLeft.position.set(100, 9.5, 49.9);
+
+
+        scene.add(borderRight);
+        scene.add(borderLeft);
+        scene.add(lineRight);
+        scene.add(lineLeft);
 
 
 
-        var geometry = new THREE.PlaneGeometry(1000, 30, 100);
-        var material = new THREE.MeshBasicMaterial({ color: 0x404040, side: THREE.DoubleSide });
-        var plane = new THREE.Mesh(geometry, material);
-        plane.rotation.x = Math.PI / 2.0;
-        plane.position.x = 100;
-        plane.position.y = -0.5;
-        plane.position.z = 10;
-        scene.add(plane);
+        var geometry = new THREE.BoxGeometry(500, 50, 0.1);
+        var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
-        spaceship(shipChoice);
+        var borderBottom = new Physijs.BoxMesh(
+            geometry,
+            material,
+            0
+        );
+
+        var borderTop = new Physijs.BoxMesh(
+            geometry,
+            material,
+            0
+        );
+
+        //var borderBottom = new THREE.Mesh(geometry, material);
+        //var borderTop = new THREE.Mesh(geometry, material);
+        borderBottom.rotation.x = Math.PI / 2.0;
+        borderTop.rotation.x = Math.PI / 2.0;
+
+        borderBottom.position.set(0, 19.6, 25);
+        borderTop.position.set(0, -.6, 25);
+
+        scene.add(borderBottom);
+        scene.add(borderTop);
+        //#endregion
+
+
+        spaceship();
+        scene.add(spaceshipModel);
+
 
         playMusic();
+        requestAnimationFrame(animate);
+        hitbox.addEventListener('collision', collisionHandler);
+        scene.simulate();
     }
 
     function onWindowResize() {
@@ -108,337 +148,156 @@ window.onload = function () {
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    function MakeObject() {
-        group = new THREE.Group();
-
-        //Het laden van het model en de materials(textures)
-        var mtlLoader = new THREE.MTLLoader();
-        mtlLoader.setTexturePath("models/Obstacles/");
-        mtlLoader.setPath("models/Obstacles/");
-        mtlLoader.load("Boulder.mtl", function (materials) {
-            materials.preload();
-
-            var objLoader = new THREE.OBJLoader()
-            objLoader.setMaterials(materials)
-            objLoader.setPath("models/Obstacles/")
-            objLoader.load("Boulder.obj", function (geometry) {
-                //hier kunnen we later wel aanpassen hoeveel objecten er zijn(moeilijksheidgraad)
-                for (var i = 0; i < 250; i++) {
-                    var obstacle = geometry.clone();
-                    obstacle.position.set(Math.random() * -200, Math.random() * 10, Math.random() * 50);
-                    obstacle.scale.set(1, 1, 1);
-                    group.add(obstacle);
-                }
-            });
-        });
-        scene.add(group);
-    }
-
-    document.addEventListener("keydown", onDocumentKeyDown, false);
     function onDocumentKeyDown(event) {
-        var keyCode = event.which;
-
-        if (keyCode == 90) {  //z key voor rotatie over rechts
-            rotateRight = true;
-
-        } else if (keyCode == 88) { // x key voor rotatie over links
-            rotateLeft = true;
-
-        } else if (keyCode == 37) { // left key voor bewegen naar links
-            moveLeft = true;
-            rotateLeft = false;
-        } else if (keyCode == 39) { // right key voor bewegen naar rechts
-            rotateRight = false;
-            moveRight = true;
-        } else if (keyCode == 38) { // up key voor naar boven
-            moveUp = true;
-        } else if (keyCode == 40) { //down key voor naar beneden
-            moveDown = true;
-        } else if (keyCode == 80) { //down key voor naar pause
-            if (pause == 1) {
-                pause = 0;
-                pauseMusic();
-            } else {
-                pause = 1;
-                resumeMusic();
-            }
-        }else if (keyCode == 107){
-            louderMusic();
-        }else if (keyCode == 109){
-            softerMusic();
+        switch (event.which) {
+            case 80:
+                if (pause == 1) {
+                    pause = 0;
+                    pauseMusic();
+                } else {
+                    pause = 1;
+                    resumeMusic();
+                }
         }
     };
 
-    document.addEventListener("keyup", onDocumentKeyUp, false);
-    function onDocumentKeyUp(event) {
-        var keyCode = event.which;
-
-        if (keyCode == 37) { // left key voor bewegen naar links
-            moveLeft = false;
-            stabiliseerSchip();
-        } else if (keyCode == 39) { // right key voor bewegen naar rechts
-            moveRight = false;
-            stabiliseerSchip();
-
-        } else if (keyCode == 38) { // up key voor naar boven
-            moveUp = false;
-            stabiliseerSchip();
-        } else if (keyCode == 40) { //down key voor naar beneden
-            moveDown = false;
-            stabiliseerSchip();
-        }
-    };
-
-    function stabiliseerSchip(){
-        if( !(curRotLeftRight > -0.05) ) //links
-        {
-            rotateLeft = true;
-        }
-        else if( !(curRotLeftRight < 0.05 ) ) //rechts
-        {
-            rotateRight = true;
-        }
-        if( curRotY > 0.01 )
-        {
-            rotateYLeft = true;
-        }
-        if( curRotY < -0.01 )
-        {
-            rotateYRight = true;
-        }
-        if( curRotZ < -0.01 )
-        {
-            rotateZRight = true;
-        }
-        if( curRotZ > 0.01 )
-        {
-            rotateZLeft = true;
-        }
-        if(CurRotUpDown > 0.01)
-        {
-            rotateDown = true;
-        }
-        if(CurRotUpDown < -0.01)
-        {
-            rotateUp = true;
-        }
-    }
-  
-    
     function animate() {
         setTimeout(function () {
-            
+
             requestAnimationFrame(animate);
+
+            hitbox.__dirtyPosition = true;
+            hitbox.__dirtyRotation = true;
+
+            hitbox.position.set(spaceshipModel.position.x, spaceshipModel.position.y, spaceshipModel.position.z);
+            hitbox.rotation.set(spaceshipModel.rotation.x, spaceshipModel.rotation.y, spaceshipModel.rotation.z);
 
             //cameraControls.update();
             updateScore();
 
-            gameSpeed += 0.00025*pause;
             
-            group.position.x += gameSpeed * pause;
-            if (group.position.x > 300) {
-                
-                scene.remove(group);
-                MakeObject();
-            }
+            gameSpeed += 0.000015 * pause;
 
-            if (moveRight == true) {
-                spaceshipModel.position.z -= sideSpeed * pause; 
-                camera.position.z -= sideSpeed * pause;
+            //group.position.x += gameSpeed * pause;
+            wall.position.x += gameSpeed * pause;
 
-                if(curRotLeftRight < 0.5 && curRotLeftRight > -0.6){ //zorgt voor draaiing over eigen as naar rechts
-                    curRotLeftRight += rotationSpeed;
-                    spaceshipModel.rotation.x -= rotationSpeed * pause;
-                }
-                if(curRotLeftRight > 0.45) //als de rotatie over eigen as voldoende is, draai het schip naar rechts
-                {
-                    if(curRotY < 0.3 && curRotY > -0.4){
-                        curRotY += noseTurnSpeed;
-                        spaceshipModel.rotation.y -= noseTurnSpeed * pause;
-                        //spaceshipModel.rotation.z -= noseTurnSpeed * pause;
-                    }
-                    if(curRotZ < 0.3 && curRotZ > -0.4) //test
-                    {
-                        curRotZ += noseTurnSpeed;
-                        spaceshipModel.rotation.z -= noseTurnSpeed * pause;
-                    }
-                }
-            }
-            if (moveLeft == true) {
-                spaceshipModel.position.z += sideSpeed * pause;
-                camera.position.z += sideSpeed * pause;
+            wall.__dirtyPosition = true;
+            //wall.setLinearVelocity(new THREE.Vector3(25 + gameSpeed, 0, 0));
 
-                if(curRotLeftRight < 0.6 && curRotLeftRight > -0.5){ //zorgt voor draaiing over eigen as naar links
-                    curRotLeftRight -= rotationSpeed;
-                    spaceshipModel.rotation.x += rotationSpeed * pause;
-                }
-                if(curRotLeftRight<-0.45) //als de rotatie over eigen as voldoende is, draai het schip naar links
-                {
-                    if(curRotY < 0.4 && curRotY > -0.3){
-                        curRotY -= noseTurnSpeed;
-                        spaceshipModel.rotation.y += noseTurnSpeed * pause;
-                        //spaceshipModel.rotation.z += noseTurnSpeed * pause;
-                    }
-                    if(curRotZ < 0.4 && curRotZ > -0.3) //test
-                    {
-                        curRotZ += noseTurnSpeed;
-                        spaceshipModel.rotation.z -= noseTurnSpeed * pause;
-                    }
-                }
-            }
-            if(moveRight == true && moveLeft == true){
-                stabiliseerSchip();
-            }
-            if (moveUp == true) {
-                spaceshipModel.position.y += 0.2 * pause;
-                camera.position.y += 0.2 * pause;
-                    if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
-                        CurRotUpDown += noseTurnSpeed;
-                        spaceshipModel.rotation.z -= noseTurnSpeed * pause;
-                    }
-            }
-            if (moveDown == true) {
-                spaceshipModel.position.y -= 0.2 * pause;
-                camera.position.y -= 0.2 * pause;
-                    if(CurRotUpDown < 0.3 && CurRotUpDown > -0.3){
-                        CurRotUpDown -= noseTurnSpeed;
-                        spaceshipModel.rotation.z += noseTurnSpeed * pause;
-                    }
-            }
-            if (rotateRight == true) { //roteert het schip zijn rol over eigen as terug naar rechtop
-                if(curRotLeftRight > 0.01){
-                    spaceshipModel.rotation.x += 0.05 * pause;
-                    curRotLeftRight -= 0.05;
-                }else {
-                    rotateRight = false;
-                }
-            }
-            if (rotateLeft == true) { //roteert het schip zijn rol over eigen as terug naar rechtop
-                if(curRotLeftRight < -0.01){
-                    spaceshipModel.rotation.x -= 0.05 * pause;
-                    curRotLeftRight += 0.05;
-                }else {
-                    rotateLeft = false;
-                } 
-            }
-            if (rotateYLeft == true) {
-                
-                if(curRotY > 0.01){
-                    spaceshipModel.rotation.y += 0.05 * pause;
-                    curRotY -= 0.05;
-                }else {
-                    rotateYLeft = false;
-                }
-            }
-            if (rotateYRight == true) {
-                
-                if(curRotY < -0.01){
-                    spaceshipModel.rotation.y -= 0.05 * pause;
-                    curRotY += 0.05;
-                }else {
-                    rotateYRight = false;
-                }
-            }
-            if (rotateZLeft == true) {
-        
-                if(curRotZ > 0.01){
-                    spaceshipModel.rotation.z += 0.05 * pause;
-                    curRotZ -= 0.05;
-                }else {
-                    rotateZLeft = false;
-                }
-            }
-            if (rotateZRight == true) {
-                
-                if(curRotZ > 0.01){
-                    spaceshipModel.rotation.z -= 0.05 * pause;
-                    curRotZ -= 0.05;
-                }else {
-                    rotateZRight = false;
-                }
-            }
-            if (rotateUp == true) {
-                if(CurRotUpDown < -0.01){
-                    spaceshipModel.rotation.z -= 0.03 * pause;
-                    CurRotUpDown += 0.03;
-                }else{
-                    rotateUp = false;
-                }
-            }
-            if (rotateDown == true) {
-                if(CurRotUpDown > 0.01){
-                    spaceshipModel.rotation.z += 0.03 * pause;
-                    CurRotUpDown -= 0.03;
-                }else{
-                    rotateDown = false;
-                }
-            }
-        }, 1000 / 60);
+            //console.log(wall.position.x);
 
-        //renderer.render();
+            if (wall.position.x > 200) {
+                scene.remove(wall);
+                var random = 4; // Math.ceil(Math.random() * 2);
+
+                switch (random) {
+                    case 1:
+                        wall = BuildAWall(Math.ceil(Math.random() * 9));
+                        scene.add(wall);
+                        break;
+                    case 2:
+                        wall = smileyWall();
+                        scene.add(wall);
+                        break;
+                    case 3:
+                        wall = hoekenUitWall();
+                        scene.add(wall);
+                        break;
+                    case 4:
+                        wall = lolWall();
+                        scene.add(wall);
+                        break;
+                }
+            }
+            
+            scene.simulate();
+            AnimateSpaceshipM(spaceshipModel, camera);
+
+        });
+
         renderer.render(scene, camera);
     }
 
-    function spaceship(choice) {
-        var scale, shipX = 0, shipY = 0, shipZ = 0, path, obj, mtl, shipRotationX = 0, shipRotationY = 0, shipRotationZ = 0;
-        switch (choice) {
-            case '1':
-                scale = 0.01;
-                path = 'models/spaceship/';
-                obj = 'spaceship.obj';
-                mtl = 'spaceship.mtl';
-                shipX = 85;
-                shipY = 1;
-                shipZ = 10;
-                shipRotationY = (Math.PI / 2) * 3;
-                break;
+    function spaceship() {
+        //#region hitbox
+        var mat = Physijs.createMaterial(
+            new THREE.MeshBasicMaterial({ color: 0xfff }),
+            .6, // medium friction
+            .3 // low restitution
+        );
 
-            case '2':
-                scale = 0.5;
-                path = 'models/spaceshuttle/';
-                obj = 'SpaceShuttle.obj';
-                mtl = 'SpaceShuttle.mtl';
-                shipRotationX = -1.413717;
-                shipRotationZ = Math.PI;
-                break;
+        hitbox = new Physijs.BoxMesh(new THREE.BoxGeometry(2, 0.4, .8), mat, 1);
 
-            case '3':
-                scale = 6;
-                path = 'models/plane/';
-                obj = 'plane.obj';
-                mtl = 'plane.mtl';
-                shipZ = 10;
-                shipRotationY = 180 * (Math.PI / 180);
-                break;
+        var hitboxBack = new Physijs.BoxMesh(new THREE.BoxGeometry(0, 0.5, 2.4), mat);
 
-            default:
-                scale = 0.01;
-                path = 'models/spaceship/';
-                obj = 'spaceship.obj';
-                mtl = 'spaceship.mtl';
-                break;
-        }
+        var hitboxUpDown = new Physijs.BoxMesh(new THREE.BoxGeometry(1, 1, 1), mat);
+
+        hitbox.position.set(85, 5, 15);
+        hitboxBack.position.set(1, 0, 0);
+        hitboxUpDown.position.set(1, 0, 0);
+
+        hitbox.add(hitboxBack);
+        hitbox.add(hitboxUpDown);
+
+        hitbox.setLinearVelocity(0, 0, 0);
+        hitbox.material.transparent = true;
+        hitbox.material.opacity = 0;
+
+        hitbox.collisions = 0;
+
+        hitbox.name = "Kevin";
+        console.log(hitbox.name);
+        console.log(hitbox.uuid);
+
+        scene.add(hitbox);
+
+        //#endregion
 
         new THREE.MTLLoader()
-            .setPath(path)
-            .load(mtl, function (materials) {
+            .setPath('models/spaceship/')
+            .load('spaceship.mtl', function (materials) {
                 materials.preload();
 
                 new THREE.OBJLoader()
                     .setMaterials(materials)
-                    .setPath(path)
-                    .load(obj, function (object) {
+                    .setPath('models/spaceship/')
+                    .load('spaceship.obj', function (object) {
                         spaceshipModel.add(object);
-                        spaceshipModel.position.set(shipX, shipY, shipZ);
-                        object.scale.set(scale, scale, scale);
-                        object.rotation.set(shipRotationX, shipRotationY, shipRotationZ);
+                        spaceshipModel.position.set(55, 5, 20);
+                        object.scale.set(0.005, 0.005, 0.005);
+                        object.rotation.set(0, (Math.PI / 2) * 3, 0);
                     });
             });
     }
 
+    function collisionHandler(other_object, relative_velocity, relative_rotation, contact_normal) {
+        // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
 
+        console.log(other_object);
+        console.log("in collision");
+        if (this.collisions != 0) {
+            console.log("hit");
+        }
+        switch (++this.collisions) {
+            case 1:
+                console.log("1 hit");
+                break;
+            case 2:
+                console.log("2 hit");
+                break;
+            case 3:
+                console.log("3 hit");
+                break;
+        }
+        if (other_object.name !== "spaceshipModel") {
+            console.log("shap");
+        }
+
+    }
 
     init();
-    MakeObject();
+    wall = BuildAWall(Math.ceil(Math.random() * 9), scene);
+    scene.add(wall);
+    console.log(wall);
     animate();
 };
