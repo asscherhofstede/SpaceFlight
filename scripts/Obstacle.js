@@ -81,7 +81,6 @@ function BuildAWall(amount, scene){
         z += 4;
     }
     return wall;
-}
 
 
 function smileyWall()

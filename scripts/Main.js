@@ -281,6 +281,7 @@ window.onload = function () {
         switch (++this.collisions) {
             case 1:
                 console.log("1 hit");
+                //End Game
                 break;
             case 2:
                 console.log("2 hit");
