@@ -18,8 +18,10 @@ window.onload = function () {
 
     var spaceshipModel = new THREE.Group();
     var wall;
+    var death = false;
+    var opacity = 0;
 
-    var audio, camera, group, cameraControls, hitbox;
+    var audio, camera, group, cameraControls, hitbox, deathPlane, resetGame;
 
     //gamevars
     var pause = 1;
@@ -166,7 +168,7 @@ window.onload = function () {
 
             requestAnimationFrame(animate);
 
-            if(pause == 1){
+            if(pause == 1 && death == false){
                 hitbox.__dirtyPosition = true;
                 hitbox.__dirtyRotation = true;
     
@@ -209,6 +211,17 @@ window.onload = function () {
                 AnimateSpaceshipM(spaceshipModel, camera);
             }
 
+            else if(death){
+                
+                if(deathPlane.position.x < 925 && deathPlane.material.opacity < 1){
+                    deathPlane.material.opacity += 0.001;
+                    deathPlane.position.x += 0.01;
+                }
+                else{
+                    resetGame.material.opacity = 1;
+                }
+            }
+
 
         });
 
@@ -242,12 +255,7 @@ window.onload = function () {
 
         hitbox.collisions = 0;
 
-        hitbox.name = "Kevin";
-        console.log(hitbox.name);
-        console.log(hitbox.uuid);
-
         scene.add(hitbox);
-
         //#endregion
 
         new THREE.MTLLoader()
@@ -278,7 +286,9 @@ window.onload = function () {
         switch (++this.collisions) {
             case 1:
                 console.log("1 hit");
-                //End Game
+                death = true;
+                YouDiedMusic();
+                YouDied();
                 break;
             case 2:
                 console.log("2 hit");
@@ -292,7 +302,32 @@ window.onload = function () {
         }
 
     }
+    
+    function YouDied(){
+        a = 0;
+        pause = 0;
+        
+        camera.position.set(1000, 1000, 1000);
+        var deathGeo = new THREE.PlaneGeometry(80, 40);
+        var deathMaterial = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/YouDied.jpg")})
 
+        deathPlane = new THREE.Mesh(deathGeo, deathMaterial);
+        deathPlane.position.set(915, 1000, 1000);
+        deathPlane.rotation.y = Math.PI / 2;
+        deathPlane.material.transparent = true;
+        deathPlane.material.opacity = 0;        
+        scene.add(deathPlane);
+
+        var resetGeo = new THREE.PlaneGeometry(50, 15);
+        var resetMat = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/Restart.png")})
+        resetGame = new THREE.Mesh(resetGeo, resetMat);
+        resetGame.position.set(950, 980, 1001);
+        resetGame.rotation.y = Math.PI / 2;
+        resetGame.material.transparent = true;
+        resetGame.material.opacity = 0;
+        scene.add(resetGame)
+    }
+    
     init();
     wall = BuildAWall(Math.ceil(Math.random() * 9));
     scene.add(wall);

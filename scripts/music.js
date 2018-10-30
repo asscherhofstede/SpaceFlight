@@ -5,6 +5,15 @@
         audio.play();
     }
 
+    function YouDiedMusic(){
+        audio.pause();
+        var zxc;
+        zxc = new Audio('music/YouDied.mp3');
+        zxc.loop = false;
+        zxc.volume = 0.1;
+        zxc.play();
+    }
+
     function louderMusic(){ //LUIDER!!! HET MOET LUIDER!!!!!!!!!!! 
         audio.volume += 0.1;
     }
