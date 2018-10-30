@@ -72,11 +72,12 @@ function BuildAWall(amount){
             z += 4;
             continue;
         }
-        wallPiece.position.set(-50, 9.5, z + 7);
+        wallPiece.position.set(0, 8.5, z + 7);
         
         wall.add(wallPiece);
         z += 4;
     }
+    console.log(wall);
     return wall;
 }
 
@@ -109,7 +110,7 @@ function smileyWall(){
                     meshWall,
                     0
                 );
-                wallPiece.position.set(-100, j, i+z);
+                wallPiece.position.set(0, j, i+z);
                 wall.add(wallPiece);
             }
         }
@@ -197,7 +198,7 @@ function lolWall(){
                     meshWall2,
                     0
                 );
-                wallPiece.position.set(-100, j, i+z);
+                wallPiece.position.set(0, j, i+z);
                 wall.add(wallPiece);
             }
         }
@@ -221,7 +222,7 @@ function lolWall(){
                     meshWall3,
                     0
                 );
-                wallPiece.position.set(-150, j, i+z);
+                wallPiece.position.set(-50, j, i+z);
                 wall.add(wallPiece);
             }
         }

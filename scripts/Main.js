@@ -24,7 +24,7 @@ window.onload = function () {
     var audio, camera, group, cameraControls, hitbox, deathPlane, resetGame;
 
     //gamevars
-    var pause = 1;
+    var pause = false;
     var gameSpeed = 0.25;
 
     //spelerscore
@@ -152,14 +152,26 @@ window.onload = function () {
 
     function onDocumentKeyDown(event) {
         switch (event.which) {
-            case 80:
-                if (pause == 1) {
-                    pause = 0;
-                    pauseMusic();
-                } else {
-                    pause = 1;
-                    resumeMusic();
+            case 32:
+                if(death){
+                    window.location.reload();
                 }
+                break;
+            case 80:
+                if (pause) {
+                    pause = false;
+                    //pauseMusic();
+                } else {
+                    pause = true;
+                    //resumeMusic();
+                }
+                break;
+            case 107:
+                louderMusic();
+                break;
+            case 109:
+                softerMusic();
+                break;
         }
     };
 
@@ -168,7 +180,7 @@ window.onload = function () {
 
             requestAnimationFrame(animate);
 
-            if(pause == 1 && death == false){
+            if(!pause && !death){
                 hitbox.__dirtyPosition = true;
                 hitbox.__dirtyRotation = true;
     
@@ -183,7 +195,9 @@ window.onload = function () {
     
                 wall.__dirtyPosition = true;
     
-                if (wall.position.x > 200) {
+                if (wall.position.x > spaceshipModel.position.x + 55) {
+                    console.log(spaceshipModel.position.x);
+                    console.log(wall.position.x);
                     scene.remove(wall);
                     var random = 4; // Math.ceil(Math.random() * 2);
     
@@ -331,6 +345,5 @@ window.onload = function () {
     init();
     wall = BuildAWall(Math.ceil(Math.random() * 9));
     scene.add(wall);
-    console.log(wall);
     animate();
 };
