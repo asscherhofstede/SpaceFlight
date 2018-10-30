@@ -36,11 +36,25 @@ window.onload = function () {
         text2.style.position = 'absolute';
         text2.style.width = 100;
         text2.style.height = 20;
-        text2.style.backgroundColor = "turquoise";
+        //text2.style.backgroundColor = "turquoise";
+        text2.style.fontSize = 32 + "px";
+        text2.style.top = 44 + 'px';
+        text2.style.left = 240 + 'px';
         text2.innerHTML = playerScore;
-        text2.style.top = 50 + 'px';
-        text2.style.left = 200 + 'px';
         document.body.appendChild(text2);
+    }
+
+    function updateHighscore() {
+        var textHighscore = document.getElementById("highscore");
+        textHighscore.style.position = 'absolute';
+        textHighscore.style.width = 100;
+        textHighscore.style.height = 20;
+        //text2.style.backgroundColor = "turquoise";
+        textHighscore.style.fontSize = 32 + "px";
+        textHighscore.style.top = 44 + 'px';
+        textHighscore.style.right = 150 + 'px';
+        textHighscore.innerHTML = GetHighscore();
+        document.body.appendChild(textHighscore);
     }
 
     function init() {
@@ -174,8 +188,8 @@ window.onload = function () {
 
             //cameraControls.update();
             updateScore();
+            updateHighscore();
 
-            
             gameSpeed += 0.000015 * pause;
 
             //group.position.x += gameSpeed * pause;
@@ -209,7 +223,7 @@ window.onload = function () {
                         break;
                 }
             }
-            
+
             scene.simulate();
             AnimateSpaceshipM(spaceshipModel, camera);
 
@@ -246,8 +260,6 @@ window.onload = function () {
         hitbox.collisions = 0;
 
         hitbox.name = "Kevin";
-        console.log(hitbox.name);
-        console.log(hitbox.uuid);
 
         scene.add(hitbox);
 
@@ -274,26 +286,25 @@ window.onload = function () {
         // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
 
         console.log(other_object);
-        console.log("in collision");
-        if (this.collisions != 0) {
-            console.log("hit");
-        }
-        switch (++this.collisions) {
-            case 1:
-                console.log("1 hit");
-                //End Game
-                break;
-            case 2:
-                console.log("2 hit");
-                break;
-            case 3:
-                console.log("3 hit");
-                break;
-        }
-        if (other_object.name !== "spaceshipModel") {
-            console.log("shap");
-        }
 
+        SetHighscore(playerScore);
+
+        window.location.reload();
+    }
+
+    function GetHighscore() {
+        //get cookie
+        var highscore = document.cookie;
+        highscore = highscore.substring(highscore.indexOf("=") + 1);
+        return highscore;
+    }
+
+    function SetHighscore(score) {
+        if (GetHighscore() < score) {
+            //set cookie
+            document.cookie = "highscore=" + score;
+            console.log(">");
+        }
     }
 
     init();

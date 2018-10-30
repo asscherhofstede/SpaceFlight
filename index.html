@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html>
 
-	<head>
-		<meta charset="utf-8">
-		<title>Space Evader</title>
-  </head>
-	<body style="margin: 0; overflow: hidden;">
-		<div id="score"></div>
+<head>
+	<meta charset="utf-8">
+	<title>Space Evader</title>
+</head>
 
+<body style="margin: 0; overflow: hidden;">
+	<div id="scoreDiv" style="position: absolute; width: 100; height: 20; 
+			top: 20px; left: 150px;
+			width: 160px;">
+		<span id="text">
+			<h1>Score: </h1>
+		</span>
+		<span id="score"></span>
+	</div>
+
+	<div id="highscoreDiv" style="position: absolute; width: 100; height: 20; 
+	top: 20px; right: 200px;
+	width: 160px;">
+		<span>
+			<h1>Highscore: </h1>
+		</span>
+		<span id="highscore"></span>
+	</div>
 	<!--
 
 
@@ -202,15 +218,15 @@
 			
 	</script>
 	-->
-		<script src="scripts/three.min.js" ></script>
-		<script src="scripts/physi.js"></script>
-		<script src="scripts/OrbitControls.js"></script> <!-- voor camera -->
-		<script src="scripts/OBJLoader.js"></script> <!-- voor het laden van 3d modellen -->
-		<script src="scripts/MTLLoader.js"></script>
-		<script src="scripts/Main.js"></script>
-		<script src="scripts/Obstacle.js"></script>
-		<script src="scripts/Movement.js"></script>
-		<script src="scripts/music.js"></script>
+	<script src="scripts/three.min.js"></script>
+	<script src="scripts/physi.js"></script>
+	<script src="scripts/OrbitControls.js"></script> <!-- voor camera -->
+	<script src="scripts/OBJLoader.js"></script> <!-- voor het laden van 3d modellen -->
+	<script src="scripts/MTLLoader.js"></script>
+	<script src="scripts/Main.js"></script>
+	<script src="scripts/Obstacle.js"></script>
+	<script src="scripts/Movement.js"></script>
+	<script src="scripts/music.js"></script>
+</body>
 
-	</body>
 </html>
