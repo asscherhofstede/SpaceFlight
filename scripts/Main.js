@@ -19,10 +19,12 @@ window.onload = function () {
     var spaceshipModel = new THREE.Group();
     var wall;
     var death = false;
-    var opacity = 0;
+    var menu = false;
+    var menu1;
+    var colourChange = 1;
 
     var audio, camera, group, cameraControls, hitbox, deathPlane, resetGame;
-
+    
     //gamevars
     var pause = false;
     var gameSpeed = 0.25;
@@ -66,6 +68,8 @@ window.onload = function () {
 
         var light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
+
+        
 
         //#region borders
         var borderGeo = new THREE.BoxGeometry(500, 20, 10);
@@ -142,6 +146,9 @@ window.onload = function () {
         requestAnimationFrame(animate);
         hitbox.addEventListener('collision', collisionHandler);
         scene.simulate();
+
+        Menu();
+        console.log(camera.position);
     }
 
     function onWindowResize() {
@@ -156,6 +163,11 @@ window.onload = function () {
                 if(death){
                     window.location.reload();
                 }
+                if(menu){
+                    menu = false;
+                    camera.position.set(65, 7, 20);
+                    resumeMusic();
+                }
                 break;
             case 80:
                 if (pause) {
@@ -166,12 +178,6 @@ window.onload = function () {
                     //resumeMusic();
                 }
                 break;
-            case 107:
-                louderMusic();
-                break;
-            case 109:
-                softerMusic();
-                break;
         }
     };
 
@@ -180,7 +186,7 @@ window.onload = function () {
 
             requestAnimationFrame(animate);
 
-            if(!pause && !death){
+            if(!menu && !death){
                 hitbox.__dirtyPosition = true;
                 hitbox.__dirtyRotation = true;
     
@@ -195,11 +201,9 @@ window.onload = function () {
     
                 wall.__dirtyPosition = true;
     
-                if (wall.position.x > spaceshipModel.position.x + 55) {
-                    console.log(spaceshipModel.position.x);
-                    console.log(wall.position.x);
+                if (wall.position.x > 220) {
                     scene.remove(wall);
-                    var random = 4; // Math.ceil(Math.random() * 2);
+                    var random = Math.ceil(Math.random() * 4);
     
                     switch (random) {
                         case 1:
@@ -219,6 +223,12 @@ window.onload = function () {
                             scene.add(wall);
                             break;
                     }
+                }
+                //console.log(playerScore);
+                if(playerScore % 200 == 0){
+                    console.log("Ja");
+                    TweenLite.to(borderBottom.material.color.getHex(), 1, borderBottom.material.color.setHex(0xFF00FF));
+                    new TWEEN.Tween(borderBottom.material.color).to({r: 1, g: 0, b: 0 }, 200).start()
                 }
                 
                 scene.simulate();
@@ -253,7 +263,6 @@ window.onload = function () {
         hitbox = new Physijs.BoxMesh(new THREE.BoxGeometry(2, 0.4, .8), mat, 1);
 
         var hitboxBack = new Physijs.BoxMesh(new THREE.BoxGeometry(0, 0.5, 2.4), mat);
-
         var hitboxUpDown = new Physijs.BoxMesh(new THREE.BoxGeometry(1, 1, 1), mat);
 
         hitbox.position.set(85, 5, 15);
@@ -323,7 +332,7 @@ window.onload = function () {
         
         camera.position.set(1000, 1000, 1000);
         var deathGeo = new THREE.PlaneGeometry(80, 40);
-        var deathMaterial = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/YouDied.jpg")})
+        var deathMaterial = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/YouDied.jpg")});
 
         deathPlane = new THREE.Mesh(deathGeo, deathMaterial);
         deathPlane.position.set(915, 1000, 1000);
@@ -332,14 +341,29 @@ window.onload = function () {
         deathPlane.material.opacity = 0;        
         scene.add(deathPlane);
 
-        var resetGeo = new THREE.PlaneGeometry(50, 15);
+        var resetGeo = new THREE.PlaneGeometry(50, 12);
         var resetMat = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/Restart.png")})
         resetGame = new THREE.Mesh(resetGeo, resetMat);
-        resetGame.position.set(950, 980, 1001);
+        resetGame.position.set(950, 980, 999);
         resetGame.rotation.y = Math.PI / 2;
         resetGame.material.transparent = true;
         resetGame.material.opacity = 0;
         scene.add(resetGame)
+    }
+
+    function Menu(){
+        console.log(window.innerHeight);
+        console.log(window.innerWidth);
+        pauseMusic();
+        menu  = true;
+        camera.position.set(-500, -500, -500);
+        var menuGeo = new THREE.PlaneGeometry(80, 40);
+        var menuMat = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/YouDied.jpg")});
+
+        menu1 = new THREE.Mesh(menuGeo, menuMat);
+        menu1.position.set(-600, -460, -500);
+        menu1.rotation.y = Math.PI / 2;      
+        scene.add(menu1);
     }
     
     init();

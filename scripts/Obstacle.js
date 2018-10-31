@@ -121,7 +121,7 @@ function smileyWall(){
 
 function hoekenUitWall(){
     wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));
-    wall.position.set(0, 0, -10);
+    wall.position.set(-50, 0, -10);
     var z = 10;
     for(var j = 0.5; j <= 18; j +=2.5){
         for(var i = 6; i <=45; i += 2.5)
@@ -144,7 +144,7 @@ function hoekenUitWall(){
                     meshWall3,
                     0
                 );
-                wallPiece.position.set(-100, j, i+z);
+                wallPiece.position.set(0, j, i+z);
                 wall.add(wallPiece);
             }
         }
@@ -164,7 +164,7 @@ function hoekenUitWall(){
                     meshWall2,
                     0
                 );
-                wallPiece.position.set(-85, j, i+z);
+                wallPiece.position.set(15, j, i+z);
                 wall.add(wallPiece);
             }
         }
