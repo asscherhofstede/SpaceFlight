@@ -21,7 +21,7 @@ window.onload = function () {
     var death = false;
     var menu = false;
     var menu1;
-    var colourChange = 1;
+    var borderBottom, borderLeft, borderRight;
 
     var audio, camera, group, cameraControls, hitbox, deathPlane, resetGame;
     
@@ -79,13 +79,13 @@ window.onload = function () {
             .3 // low restitution
         );
 
-        var borderRight = new Physijs.BoxMesh(
+        borderRight = new Physijs.BoxMesh(
             borderGeo,
             borderMat,
             0
         );
 
-        var borderLeft = new Physijs.BoxMesh(
+        borderLeft = new Physijs.BoxMesh(
             borderGeo,
             borderMat,
             0
@@ -113,7 +113,7 @@ window.onload = function () {
         var geometry = new THREE.BoxGeometry(500, 50, 0.1);
         var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
-        var borderBottom = new Physijs.BoxMesh(
+        borderBottom = new Physijs.BoxMesh(
             geometry,
             material,
             0
@@ -224,13 +224,22 @@ window.onload = function () {
                             break;
                     }
                 }
-                //console.log(playerScore);
+
                 if(playerScore % 200 == 0){
+                    var targetColor = new THREE.Color(Math.random() * 0xffffff);
                     console.log("Ja");
-                    TweenLite.to(borderBottom.material.color.getHex(), 1, borderBottom.material.color.setHex(0xFF00FF));
-                    new TWEEN.Tween(borderBottom.material.color).to({r: 1, g: 0, b: 0 }, 200).start()
+                    TweenMax.to(borderBottom.material.color, 2, {
+                        r: targetColor.r,
+                        g: targetColor.g,
+                        b: targetColor.b
+                    });
+                    TweenMax.to(borderLeft.material.color, 2, {
+                        r: targetColor.r,
+                        g: targetColor.g,
+                        b: targetColor.b
+                    });
                 }
-                
+
                 scene.simulate();
                 AnimateSpaceshipM(spaceshipModel, camera);
             }
@@ -341,7 +350,7 @@ window.onload = function () {
         deathPlane.material.opacity = 0;        
         scene.add(deathPlane);
 
-        var resetGeo = new THREE.PlaneGeometry(50, 12);
+        var resetGeo = new THREE.PlaneGeometry(65, 12);
         var resetMat = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/Restart.png")})
         resetGame = new THREE.Mesh(resetGeo, resetMat);
         resetGame.position.set(950, 980, 999);
