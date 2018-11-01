@@ -48,11 +48,7 @@ function MakeObject() {
 }
 
 //Bouw een muur
-function BuildAWall(amount){
-    var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));
-    wall.position.set(0, 0, -10);
-
-    var z = 10;
+function BuildAWall(amount, x, z, wall){
     for(var i = 0; i < 10; i++){
         var wallPiece = new Physijs.BoxMesh(
             geo,
@@ -72,7 +68,7 @@ function BuildAWall(amount){
             z += 4;
             continue;
         }
-        wallPiece.position.set(0, 8.5, z + 7);
+        wallPiece.position.set(x, 8.5, z + 7);
         
         wall.add(wallPiece);
         z += 4;
@@ -174,11 +170,10 @@ function hoekenUitWall(){
     return wall;
 }
 
-
 function lolWall(){
 
     var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}), 0);
-    wall.position.set(0, 0, -10);
+    wall.position.set(-50, 0, -10);
     var z = 10;
     for(var j = 0.5; j <= 18; j +=2.5){
         for(var i = 6; i <=45; i += 2.5)
@@ -198,7 +193,7 @@ function lolWall(){
                     meshWall2,
                     0
                 );
-                wallPiece.position.set(0, j, i+z);
+                wallPiece.position.set(50, j, i+z);
                 wall.add(wallPiece);
             }
         }
@@ -222,10 +217,30 @@ function lolWall(){
                     meshWall3,
                     0
                 );
-                wallPiece.position.set(-50, j, i+z);
+                wallPiece.position.set(0, j, i+z);
                 wall.add(wallPiece);
             }
         }
     }
+    return wall;
+}
+
+function IncreaseDifficulty(difficulty){
+    //Naar mate je verder komt in het spel moeten er meerder walls spawnen.
+    var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));
+    wall.position.set(-50 * (difficulty - 1), 0, -10);
+    var z = 10;
+        
+    for (var i = 0; i < difficulty; i++){
+        var random = 1; //Math.ceil(Math.random() * 4);
+        var x = (-50 * i) * -1;
+
+        switch(random){
+            case 1:
+                wall.add(BuildAWall(Math.ceil(Math.random() * 9), x, z, wall));
+                break;
+        }
+    }
+    console.log(wall);
     return wall;
 }

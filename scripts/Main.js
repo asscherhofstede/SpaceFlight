@@ -22,8 +22,10 @@ window.onload = function () {
     var wall;
     var death = false;
     var menu = false;
-    var menu1;
     var borderBottom, borderLeft, borderRight;
+    var difficultyLast = 1;
+    var difficultyNow = 1;
+    var difficulty = 1;
 
     var audio, camera, group, cameraControls, hitbox, deathPlane, resetGame;
     
@@ -42,7 +44,7 @@ window.onload = function () {
         text2.style.position = 'absolute';
         text2.style.width = 100;
         text2.style.height = 20;
-        text2.style.backgroundColor = "turquoise";
+        //text2.style.backgroundColor = "turquoise";
         text2.style.fontSize = 32 + "px";
         text2.style.top = 44 + 'px';
         text2.style.left = 240 + 'px';
@@ -55,7 +57,7 @@ window.onload = function () {
         textHighscore.style.position = 'absolute';
         textHighscore.style.width = 100;
         textHighscore.style.height = 20;
-        textHighscore.style.backgroundColor = "turquoise";
+        //textHighscore.style.backgroundColor = "turquoise";
         textHighscore.style.fontSize = 32 + "px";
         textHighscore.style.top = 44 + 'px';
         textHighscore.style.right = 150 + 'px';
@@ -206,6 +208,8 @@ window.onload = function () {
         //console.log("Sander Beijaard the pineapple/robot");
         //console.log("Adriaan Beenen f3001 man");
         //console.log("Asscher Hofstede the pineapple hater");
+
+        
         setTimeout(function () {
 
             requestAnimationFrame(animate);
@@ -225,32 +229,40 @@ window.onload = function () {
                 wall.position.x += gameSpeed;
     
                 wall.__dirtyPosition = true;
-    
-                if (wall.position.x > 220) {
+                
+                if (wall.position.x > camera.position.x + 5) {
                     scene.remove(wall);
                     var random = Math.ceil(Math.random() * 4);
+                    //Functie voor difficulty
+                    wall = IncreaseDifficulty(difficulty);
+                    scene.add(wall);
     
-                    switch (random) {
-                        case 1:
-                            wall = BuildAWall(Math.ceil(Math.random() * 9));
-                            scene.add(wall);
-                            break;
-                        case 2:
-                            wall = smileyWall();
-                            scene.add(wall);
-                            break;
-                        case 3:
-                            wall = hoekenUitWall();
-                            scene.add(wall);
-                            break;
-                        case 4:
-                            wall = lolWall();
-                            scene.add(wall);
-                            break;
-                    }
+                    // switch (random) {
+                    //     case 1:
+                    //         wall = BuildAWall(Math.ceil(Math.random() * 9));
+                    //         scene.add(wall);
+                    //         break;
+                    //     case 2:
+                    //         wall = smileyWall();
+                    //         scene.add(wall);
+                    //         break;
+                    //     case 3:
+                    //         wall = hoekenUitWall();
+                    //         scene.add(wall);
+                    //         break;
+                    //     case 4:
+                    //         wall = lolWall();
+                    //         scene.add(wall);
+                    //         break;
+                    // }
                 }
 
                 if(playerScore % 200 == 0){
+                    difficultyLast++;
+                    if(difficultyLast == (difficultyNow + 4)){
+                        difficultyNow = difficultyLast;
+                        difficulty++;
+                    }
                     var targetColor = new THREE.Color(Math.random() * 0xffffff);
                     TweenMax.to(borderBottom.material.color, 2, {
                         r: targetColor.r,
@@ -266,6 +278,7 @@ window.onload = function () {
 
                 scene.simulate();
                 AnimateSpaceshipM(spaceshipModel, camera);
+                
             }
 
             else if(death){
@@ -416,7 +429,8 @@ window.onload = function () {
     }
     
     init();
-    wall = BuildAWall(Math.ceil(Math.random() * 9));
+    wall = IncreaseDifficulty(difficulty);
+    console.log(wall);
     scene.add(wall);
     animate();
 };
