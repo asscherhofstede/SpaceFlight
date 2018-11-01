@@ -21,10 +21,12 @@ window.onload = function () {
     var spaceshipModel = new THREE.Group();
     var wall;
     var death = false;
-    var opacity = 0;
+    var menu = false;
+    var menu1;
+    var borderBottom, borderLeft, borderRight;
 
     var audio, camera, group, cameraControls, hitbox, deathPlane, resetGame;
-
+    
     //gamevars
     var pause = false;
     var gameSpeed = 0.25;
@@ -40,11 +42,25 @@ window.onload = function () {
         text2.style.position = 'absolute';
         text2.style.width = 100;
         text2.style.height = 20;
-        text2.style.backgroundColor = "turquoise";
+        //text2.style.backgroundColor = "turquoise";
+        text2.style.fontSize = 32 + "px";
+        text2.style.top = 44 + 'px';
+        text2.style.left = 240 + 'px';
         text2.innerHTML = playerScore;
-        text2.style.top = 50 + 'px';
-        text2.style.left = 200 + 'px';
         document.body.appendChild(text2);
+    }
+
+    function updateHighscore() {
+        var textHighscore = document.getElementById("highscore");
+        textHighscore.style.position = 'absolute';
+        textHighscore.style.width = 100;
+        textHighscore.style.height = 20;
+        //text2.style.backgroundColor = "turquoise";
+        textHighscore.style.fontSize = 32 + "px";
+        textHighscore.style.top = 44 + 'px';
+        textHighscore.style.right = 150 + 'px';
+        textHighscore.innerHTML = GetHighscore();
+        document.body.appendChild(textHighscore);
     }
 
     function init() {
@@ -69,6 +85,8 @@ window.onload = function () {
         var light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
 
+        
+
         //#region borders
         var borderGeo = new THREE.BoxGeometry(500, 20, 10);
         var borderMat = Physijs.createMaterial(
@@ -77,13 +95,13 @@ window.onload = function () {
             .3 // low restitution
         );
 
-        var borderRight = new Physijs.BoxMesh(
+        borderRight = new Physijs.BoxMesh(
             borderGeo,
             borderMat,
             0
         );
 
-        var borderLeft = new Physijs.BoxMesh(
+        borderLeft = new Physijs.BoxMesh(
             borderGeo,
             borderMat,
             0
@@ -111,7 +129,7 @@ window.onload = function () {
         var geometry = new THREE.BoxGeometry(500, 50, 0.1);
         var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
-        var borderBottom = new Physijs.BoxMesh(
+        borderBottom = new Physijs.BoxMesh(
             geometry,
             material,
             0
@@ -161,7 +179,8 @@ window.onload = function () {
                 }
                 if(menu){
                     menu = false;
-                    camera.position.set(65, 7, 20)
+                    camera.position.set(65, 7, 20);
+                    resumeMusic();
                 }
                 break;
             case 80:
@@ -172,12 +191,6 @@ window.onload = function () {
                     pause = true;
                     //resumeMusic();
                 }
-                break;
-            case 107:
-                louderMusic();
-                break;
-            case 109:
-                softerMusic();
                 break;
         }
     };
@@ -207,11 +220,9 @@ window.onload = function () {
     
                 wall.__dirtyPosition = true;
     
-                if (wall.position.x > spaceshipModel.position.x + 55) {
-                    console.log(spaceshipModel.position.x);
-                    console.log(wall.position.x);
+                if (wall.position.x > 220) {
                     scene.remove(wall);
-                    var random = 4; // Math.ceil(Math.random() * 2);
+                    var random = Math.ceil(Math.random() * 4);
     
                     switch (random) {
                         case 1:
@@ -232,7 +243,22 @@ window.onload = function () {
                             break;
                     }
                 }
-                
+
+                if(playerScore % 200 == 0){
+                    var targetColor = new THREE.Color(Math.random() * 0xffffff);
+                    console.log("Ja");
+                    TweenMax.to(borderBottom.material.color, 2, {
+                        r: targetColor.r,
+                        g: targetColor.g,
+                        b: targetColor.b
+                    });
+                    TweenMax.to(borderLeft.material.color, 2, {
+                        r: targetColor.r,
+                        g: targetColor.g,
+                        b: targetColor.b
+                    });
+                }
+
                 scene.simulate();
                 AnimateSpaceshipM(spaceshipModel, camera);
             }
@@ -265,7 +291,6 @@ window.onload = function () {
         hitbox = new Physijs.BoxMesh(new THREE.BoxGeometry(2, 0.4, .8), mat, 1);
 
         var hitboxBack = new Physijs.BoxMesh(new THREE.BoxGeometry(0, 0.5, 2.4), mat);
-
         var hitboxUpDown = new Physijs.BoxMesh(new THREE.BoxGeometry(1, 1, 1), mat);
 
         hitbox.position.set(85, 5, 15);
@@ -313,6 +338,7 @@ window.onload = function () {
             case 1:
                 console.log("1 hit");
                 death = true;
+                SetHighscore(playerScore);
                 YouDiedMusic();
                 YouDied();
                 break;
@@ -326,7 +352,21 @@ window.onload = function () {
         if (other_object.name !== "spaceshipModel") {
             console.log("shap");
         }
+    }
 
+    function GetHighscore() {
+        //get cookie
+        var highscore = document.cookie;
+        highscore = highscore.substring(highscore.indexOf("=") + 1);
+        return highscore;
+    }
+
+    function SetHighscore(score) {
+        if (GetHighscore() < score) {
+            //set cookie
+            document.cookie = "highscore=" + score;
+            console.log(">");
+        }
     }
     
     function YouDied(){
@@ -335,7 +375,7 @@ window.onload = function () {
         
         camera.position.set(1000, 1000, 1000);
         var deathGeo = new THREE.PlaneGeometry(80, 40);
-        var deathMaterial = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/YouDied.jpg")})
+        var deathMaterial = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/YouDied.jpg")});
 
         deathPlane = new THREE.Mesh(deathGeo, deathMaterial);
         deathPlane.position.set(915, 1000, 1000);
@@ -344,10 +384,10 @@ window.onload = function () {
         deathPlane.material.opacity = 0;        
         scene.add(deathPlane);
 
-        var resetGeo = new THREE.PlaneGeometry(50, 15);
+        var resetGeo = new THREE.PlaneGeometry(65, 12);
         var resetMat = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/Restart.png")})
         resetGame = new THREE.Mesh(resetGeo, resetMat);
-        resetGame.position.set(950, 980, 1001);
+        resetGame.position.set(950, 980, 999);
         resetGame.rotation.y = Math.PI / 2;
         resetGame.material.transparent = true;
         resetGame.material.opacity = 0;
