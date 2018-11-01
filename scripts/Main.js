@@ -42,7 +42,7 @@ window.onload = function () {
         text2.style.position = 'absolute';
         text2.style.width = 100;
         text2.style.height = 20;
-        //text2.style.backgroundColor = "turquoise";
+        text2.style.backgroundColor = "turquoise";
         text2.style.fontSize = 32 + "px";
         text2.style.top = 44 + 'px';
         text2.style.left = 240 + 'px';
@@ -55,11 +55,16 @@ window.onload = function () {
         textHighscore.style.position = 'absolute';
         textHighscore.style.width = 100;
         textHighscore.style.height = 20;
-        //text2.style.backgroundColor = "turquoise";
+        textHighscore.style.backgroundColor = "turquoise";
         textHighscore.style.fontSize = 32 + "px";
         textHighscore.style.top = 44 + 'px';
         textHighscore.style.right = 150 + 'px';
-        textHighscore.innerHTML = GetHighscore();
+        if(playerScore > GetHighscore()){
+            textHighscore.innerHTML = playerScore;
+        }
+        else{
+            textHighscore.innerHTML = GetHighscore();
+        }
         document.body.appendChild(textHighscore);
     }
 
@@ -196,11 +201,11 @@ window.onload = function () {
     };
 
     function animate() {
-        console.log("credits");
-        console.log("Kevin visser the Paper boy");
-        console.log("Sander Beijaard the pineapple/robot");
-        console.log("Adriaan Beenen f3001 man");
-        console.log("Asscher Hofstede the pineapple hater");
+        //console.log("credits");
+        //console.log("Kevin visser the Paper boy");
+        //console.log("Sander Beijaard the pineapple/robot");
+        //console.log("Adriaan Beenen f3001 man");
+        //console.log("Asscher Hofstede the pineapple hater");
         setTimeout(function () {
 
             requestAnimationFrame(animate);
@@ -213,6 +218,7 @@ window.onload = function () {
                 hitbox.rotation.set(spaceshipModel.rotation.x, spaceshipModel.rotation.y, spaceshipModel.rotation.z);
     
                 updateScore();
+                updateHighscore();
                 
                 gameSpeed += 0.000015;
     
@@ -246,7 +252,6 @@ window.onload = function () {
 
                 if(playerScore % 200 == 0){
                     var targetColor = new THREE.Color(Math.random() * 0xffffff);
-                    console.log("Ja");
                     TweenMax.to(borderBottom.material.color, 2, {
                         r: targetColor.r,
                         g: targetColor.g,
@@ -342,17 +347,8 @@ window.onload = function () {
                 YouDiedMusic();
                 YouDied();
                 break;
-            case 2:
-                console.log("2 hit");
-                break;
-            case 3:
-                console.log("3 hit");
-                break;
+            }
         }
-        if (other_object.name !== "spaceshipModel") {
-            console.log("shap");
-        }
-    }
 
     function GetHighscore() {
         //get cookie
