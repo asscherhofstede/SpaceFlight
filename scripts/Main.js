@@ -16,6 +16,8 @@ window.onload = function () {
         }
     );
 
+    var menu = false;
+
     var spaceshipModel = new THREE.Group();
     var wall;
     var death = false;
@@ -160,9 +162,7 @@ window.onload = function () {
         requestAnimationFrame(animate);
         hitbox.addEventListener('collision', collisionHandler);
         scene.simulate();
-
         Menu();
-        console.log(camera.position);
     }
 
     function onWindowResize() {
@@ -196,6 +196,11 @@ window.onload = function () {
     };
 
     function animate() {
+        console.log("credits");
+        console.log("Kevin visser the Paper boy");
+        console.log("Sander Beijaard the pineapple/robot");
+        console.log("Adriaan Beenen f3001 man");
+        console.log("Asscher Hofstede the pineapple hater");
         setTimeout(function () {
 
             requestAnimationFrame(animate);
@@ -388,20 +393,30 @@ window.onload = function () {
         resetGame.material.opacity = 0;
         scene.add(resetGame)
     }
-
     function Menu(){
-        console.log(window.innerHeight);
-        console.log(window.innerWidth);
-        pauseMusic();
-        menu  = true;
-        camera.position.set(-500, -500, -500);
-        var menuGeo = new THREE.PlaneGeometry(80, 40);
-        var menuMat = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/YouDied.jpg")});
+        menu = true;
 
-        menu1 = new THREE.Mesh(menuGeo, menuMat);
-        menu1.position.set(-600, -460, -500);
-        menu1.rotation.y = Math.PI / 2;      
-        scene.add(menu1);
+        camera.position.set(-500,-500,-500);        
+
+        var startGeo = new THREE.PlaneGeometry(240, 170);
+        var startmenu = new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("Images/startscherm.png")})
+
+        var pressSpace = new THREE.Mesh(startGeo, startmenu);
+        
+        pressSpace.position.set(-600,-510,-500);
+        pressSpace.rotation.y = Math.PI / 2;
+        scene.add(pressSpace);
+
+        // var spaceGeo = new THREE.PlaneGeometry(50, 15);
+        // var resetspace = new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("images/spaceinvaders.png")})
+
+        // var logo = new THREE.Mesh(spaceGeo, resetspace);
+        
+        // logo.position.set(-600,-500,-500);
+        // logo.rotation.y = Math.PI /2;
+        // scene.add(logo);
+
+
     }
     
     init();
