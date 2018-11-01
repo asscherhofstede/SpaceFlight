@@ -40,11 +40,25 @@ window.onload = function () {
         text2.style.position = 'absolute';
         text2.style.width = 100;
         text2.style.height = 20;
-        text2.style.backgroundColor = "turquoise";
+        //text2.style.backgroundColor = "turquoise";
+        text2.style.fontSize = 32 + "px";
+        text2.style.top = 44 + 'px';
+        text2.style.left = 240 + 'px';
         text2.innerHTML = playerScore;
-        text2.style.top = 50 + 'px';
-        text2.style.left = 200 + 'px';
         document.body.appendChild(text2);
+    }
+
+    function updateHighscore() {
+        var textHighscore = document.getElementById("highscore");
+        textHighscore.style.position = 'absolute';
+        textHighscore.style.width = 100;
+        textHighscore.style.height = 20;
+        //text2.style.backgroundColor = "turquoise";
+        textHighscore.style.fontSize = 32 + "px";
+        textHighscore.style.top = 44 + 'px';
+        textHighscore.style.right = 150 + 'px';
+        textHighscore.innerHTML = GetHighscore();
+        document.body.appendChild(textHighscore);
     }
 
     function init() {
@@ -319,6 +333,7 @@ window.onload = function () {
             case 1:
                 console.log("1 hit");
                 death = true;
+                SetHighscore(playerScore);
                 YouDiedMusic();
                 YouDied();
                 break;
@@ -332,7 +347,21 @@ window.onload = function () {
         if (other_object.name !== "spaceshipModel") {
             console.log("shap");
         }
+    }
 
+    function GetHighscore() {
+        //get cookie
+        var highscore = document.cookie;
+        highscore = highscore.substring(highscore.indexOf("=") + 1);
+        return highscore;
+    }
+
+    function SetHighscore(score) {
+        if (GetHighscore() < score) {
+            //set cookie
+            document.cookie = "highscore=" + score;
+            console.log(">");
+        }
     }
     
     function YouDied(){

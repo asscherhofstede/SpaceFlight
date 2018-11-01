@@ -177,7 +177,7 @@ function hoekenUitWall(){
 
 function lolWall(){
 
-    var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}));;
+    var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}), 0);
     wall.position.set(0, 0, -10);
     var z = 10;
     for(var j = 0.5; j <= 18; j +=2.5){
