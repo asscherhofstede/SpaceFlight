@@ -165,7 +165,7 @@ window.onload = function () {
         scene.add(spaceshipModel);
 
 
-        playMusic();
+        //playMusic();
         requestAnimationFrame(animate);
         hitbox.addEventListener('collision', collisionHandler);
         scene.simulate();
@@ -187,7 +187,7 @@ window.onload = function () {
                 if(menu){
                     menu = false;
                     camera.position.set(65, 7, 20);
-                    resumeMusic();
+                    playMusic();
                 }
                 break;
             case 80:
@@ -198,6 +198,9 @@ window.onload = function () {
                     pause = true;
                     //resumeMusic();
                 }
+                break;
+            case 67:
+                camera.position.z -= 30;
                 break;
         }
     };
@@ -214,7 +217,7 @@ window.onload = function () {
 
             requestAnimationFrame(animate);
 
-            if(!menu && !death){
+            if(!menu && !death /* && !pause*/){
                 hitbox.__dirtyPosition = true;
                 hitbox.__dirtyRotation = true;
     
@@ -229,32 +232,13 @@ window.onload = function () {
                 wall.position.x += gameSpeed;
     
                 wall.__dirtyPosition = true;
-                
+
                 if (wall.position.x > camera.position.x + 5) {
                     scene.remove(wall);
-                    var random = Math.ceil(Math.random() * 4);
-                    //Functie voor difficulty
+                    wall = null;
+
                     wall = IncreaseDifficulty(difficulty);
                     scene.add(wall);
-    
-                    // switch (random) {
-                    //     case 1:
-                    //         wall = BuildAWall(Math.ceil(Math.random() * 9));
-                    //         scene.add(wall);
-                    //         break;
-                    //     case 2:
-                    //         wall = smileyWall();
-                    //         scene.add(wall);
-                    //         break;
-                    //     case 3:
-                    //         wall = hoekenUitWall();
-                    //         scene.add(wall);
-                    //         break;
-                    //     case 4:
-                    //         wall = lolWall();
-                    //         scene.add(wall);
-                    //         break;
-                    // }
                 }
 
                 if(playerScore % 200 == 0){
