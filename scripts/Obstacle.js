@@ -319,7 +319,7 @@ function IncreaseDifficulty(difficulty) {
 
     for (var i = 0; i < difficulty; i++) {
         var random = Math.ceil(Math.random() * 11);
-        var x = (-75 * i) * -1;
+        var x = (-50 * i) * -1;
 
         switch (random) {
             case 1:

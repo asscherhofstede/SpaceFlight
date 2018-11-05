@@ -96,23 +96,10 @@ window.onload = function () {
 
         //#region borders
         var borderGeo = new THREE.BoxGeometry(500, 20, 10);
-        var borderMat = Physijs.createMaterial(
-            new THREE.MeshBasicMaterial({ color: 0x00FFFF }),
-            .8, // high friction
-            .3 // low restitution
-        );
+        var borderMat = new THREE.MeshBasicMaterial({color: 0x00FFFF, side: THREE.DoubleSide })
 
-        borderRight = new Physijs.BoxMesh(
-            borderGeo,
-            borderMat,
-            0
-        );
-
-        borderLeft = new Physijs.BoxMesh(
-            borderGeo,
-            borderMat,
-            0
-        );
+        borderRight = new THREE.Mesh(borderGeo, borderMat);
+        borderLeft = new THREE.Mesh(borderGeo, borderMat);
 
         borderRight.position.set(0, 9.5, 0);
         borderLeft.position.set(0, 9.5, 50);
@@ -131,25 +118,11 @@ window.onload = function () {
         scene.add(lineRight);
         scene.add(lineLeft);
 
+        var geometry = new THREE.PlaneGeometry(500, 50, 10);
 
+        borderBottom = new THREE.Mesh(geometry, borderMat);
+        var borderTop = new THREE.Mesh(geometry, borderMat);
 
-        var geometry = new THREE.BoxGeometry(500, 50, 0.1);
-        var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
-
-        borderBottom = new Physijs.BoxMesh(
-            geometry,
-            material,
-            0
-        );
-
-        var borderTop = new Physijs.BoxMesh(
-            geometry,
-            material,
-            0
-        );
-
-        //var borderBottom = new THREE.Mesh(geometry, material);
-        //var borderTop = new THREE.Mesh(geometry, material);
         borderBottom.rotation.x = Math.PI / 2.0;
         borderTop.rotation.x = Math.PI / 2.0;
 
@@ -206,12 +179,7 @@ window.onload = function () {
     };
 
     function animate() {
-        //console.log("credits");
-        //console.log("Kevin visser the Paper boy");
-        //console.log("Sander Beijaard the pineapple/robot");
-        //console.log("Adriaan Beenen f3001 man");
-        //console.log("Asscher Hofstede the pineapple hater");
-
+        
         
         setTimeout(function () {
 
@@ -264,7 +232,6 @@ window.onload = function () {
                 AnimateSpaceshipM(spaceshipModel, camera);
                 
             }
-
             else if(death){
                 
                 if(deathPlane.position.x < 925 && deathPlane.material.opacity < 1){
@@ -273,6 +240,7 @@ window.onload = function () {
                 }
                 else{
                     resetGame.material.opacity = 1;
+
                 }
             }
 
