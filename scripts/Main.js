@@ -28,7 +28,7 @@ window.onload = function () {
     var difficulty = 1;
 
     var audio, camera, group, cameraControls, hitbox, deathPlane, resetGame;
-    
+
     //gamevars
     var pause = false;
     var gameSpeed = 0.25;
@@ -61,10 +61,10 @@ window.onload = function () {
         textHighscore.style.fontSize = 32 + "px";
         textHighscore.style.top = 44 + 'px';
         textHighscore.style.right = 150 + 'px';
-        if(playerScore > GetHighscore()){
+        if (playerScore > GetHighscore()) {
             textHighscore.innerHTML = playerScore;
         }
-        else{
+        else {
             textHighscore.innerHTML = GetHighscore();
         }
         document.body.appendChild(textHighscore);
@@ -92,14 +92,27 @@ window.onload = function () {
         var light = new THREE.AmbientLight(0xFFFFFF);
         scene.add(light);
 
-        
+
 
         //#region borders
         var borderGeo = new THREE.BoxGeometry(500, 20, 10);
-        var borderMat = new THREE.MeshBasicMaterial({color: 0x00FFFF, side: THREE.DoubleSide })
+        var borderMat = Physijs.createMaterial(
+            new THREE.MeshBasicMaterial({ color: 0x00FFFF }),
+            .8, // high friction
+            .3 // low restitution
+        );
 
-        borderRight = new THREE.Mesh(borderGeo, borderMat);
-        borderLeft = new THREE.Mesh(borderGeo, borderMat);
+        borderRight = new Physijs.BoxMesh(
+            borderGeo,
+            borderMat,
+            0
+        );
+
+        borderLeft = new Physijs.BoxMesh(
+            borderGeo,
+            borderMat,
+            0
+        );
 
         borderRight.position.set(0, 9.5, 0);
         borderLeft.position.set(0, 9.5, 50);
@@ -118,11 +131,25 @@ window.onload = function () {
         scene.add(lineRight);
         scene.add(lineLeft);
 
-        var geometry = new THREE.PlaneGeometry(500, 50, 10);
 
-        borderBottom = new THREE.Mesh(geometry, borderMat);
-        var borderTop = new THREE.Mesh(geometry, borderMat);
 
+        var geometry = new THREE.BoxGeometry(500, 50, 0.1);
+        var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
+
+        borderBottom = new Physijs.BoxMesh(
+            geometry,
+            material,
+            0
+        );
+
+        var borderTop = new Physijs.BoxMesh(
+            geometry,
+            material,
+            0
+        );
+
+        //var borderBottom = new THREE.Mesh(geometry, material);
+        //var borderTop = new THREE.Mesh(geometry, material);
         borderBottom.rotation.x = Math.PI / 2.0;
         borderTop.rotation.x = Math.PI / 2.0;
 
@@ -154,10 +181,10 @@ window.onload = function () {
     function onDocumentKeyDown(event) {
         switch (event.which) {
             case 32:
-                if(death){
+                if (death) {
                     window.location.reload();
                 }
-                if(menu){
+                if (menu) {
                     menu = false;
                     camera.position.set(65, 7, 20);
                     playMusic();
@@ -179,26 +206,32 @@ window.onload = function () {
     };
 
     function animate() {
-        
-        
+        //console.log("credits");
+        //console.log("Kevin visser the Paper boy");
+        //console.log("Sander Beijaard the pineapple/robot");
+        //console.log("Adriaan Beenen f3001 man");
+        //console.log("Asscher Hofstede the pineapple hater");
+
+
         setTimeout(function () {
 
             requestAnimationFrame(animate);
 
-            if(!menu && !death /* && !pause*/){
+            if (!menu && !death /* && !pause*/) {
                 hitbox.__dirtyPosition = true;
                 hitbox.__dirtyRotation = true;
-    
+
                 hitbox.position.set(spaceshipModel.position.x, spaceshipModel.position.y, spaceshipModel.position.z);
                 hitbox.rotation.set(spaceshipModel.rotation.x, spaceshipModel.rotation.y, spaceshipModel.rotation.z);
-    
+
                 updateScore();
                 updateHighscore();
-                
-                gameSpeed += 0.000015;
-    
+                if (gameSpeed < 0.50) {
+                    gameSpeed += 0.00003;
+                }
+
                 wall.position.x += gameSpeed;
-    
+
                 wall.__dirtyPosition = true;
 
                 if (wall.position.x > camera.position.x + 5) {
@@ -209,9 +242,9 @@ window.onload = function () {
                     scene.add(wall);
                 }
 
-                if(playerScore % 200 == 0){
+                if (playerScore % 200 == 0) {
                     difficultyLast++;
-                    if(difficultyLast == (difficultyNow + 4)){
+                    if (difficultyLast == (difficultyNow + 4)) {
                         difficultyNow = difficultyLast;
                         difficulty++;
                     }
@@ -230,17 +263,16 @@ window.onload = function () {
 
                 scene.simulate();
                 AnimateSpaceshipM(spaceshipModel, camera);
-                
+
             }
-            else if(death){
-                
-                if(deathPlane.position.x < 925 && deathPlane.material.opacity < 1){
+
+            else if (death) {
+                if (deathPlane.position.x < 925 && deathPlane.material.opacity < 1) {
                     deathPlane.material.opacity += 0.001;
                     deathPlane.position.x += 0.01;
                 }
-                else{
+                else {
                     resetGame.material.opacity = 1;
-
                 }
             }
 
@@ -298,22 +330,15 @@ window.onload = function () {
 
     function collisionHandler(other_object, relative_velocity, relative_rotation, contact_normal) {
         // `this` has collided with `other_object` with an impact speed of `relative_velocity` and a rotational force of `relative_rotation` and at normal `contact_normal`
-
-        console.log(other_object);
-        console.log("in collision");
-        if (this.collisions != 0) {
-            console.log("hit");
-        }
         switch (++this.collisions) {
             case 1:
-                console.log("1 hit");
                 death = true;
                 SetHighscore(playerScore);
                 YouDiedMusic();
                 YouDied();
                 break;
-            }
         }
+    }
 
     function GetHighscore() {
         //get cookie
@@ -329,42 +354,57 @@ window.onload = function () {
             console.log(">");
         }
     }
-    
-    function YouDied(){
+
+    function YouDied() {
         a = 0;
         pause = 0;
-        
+        console.log(playerScore);
         camera.position.set(1000, 1000, 1000);
         var deathGeo = new THREE.PlaneGeometry(80, 40);
-        var deathMaterial = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/YouDied.jpg")});
+        var deathMaterial = new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Images/YouDied.jpg") });
 
         deathPlane = new THREE.Mesh(deathGeo, deathMaterial);
         deathPlane.position.set(915, 1000, 1000);
         deathPlane.rotation.y = Math.PI / 2;
         deathPlane.material.transparent = true;
-        deathPlane.material.opacity = 0;        
+        deathPlane.material.opacity = 0;
         scene.add(deathPlane);
 
         var resetGeo = new THREE.PlaneGeometry(65, 12);
-        var resetMat = new THREE.MeshLambertMaterial({map: new THREE.TextureLoader().load("Images/Restart.png")})
+        var resetMat = new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Images/Restart.png") })
         resetGame = new THREE.Mesh(resetGeo, resetMat);
         resetGame.position.set(950, 980, 999);
         resetGame.rotation.y = Math.PI / 2;
         resetGame.material.transparent = true;
         resetGame.material.opacity = 0;
         scene.add(resetGame)
+
+        //tekst
+        var text2 = document.getElementById("eindscore");
+        var text3 = document.getElementById("textEind");
+        text2.style.position = 'absolute';
+        text2.style.width = 100;
+        text2.style.height = 20;
+        text2.style.color = "white";
+        text2.style.fontSize = 32 + "px";
+        text2.style.top = 44 + 'px';
+        text2.style.left = 960 + 'px';
+        text2.innerHTML = playerScore;
+        text3.innerHTML = "<h1>Eindscore: </h1>";
+        document.body.appendChild(text2);
+
     }
-    function Menu(){
+    function Menu() {
         menu = true;
 
-        camera.position.set(-500,-500,-500);        
+        camera.position.set(-500, -500, -500);
 
         var startGeo = new THREE.PlaneGeometry(240, 170);
-        var startmenu = new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("Images/startscherm.png")})
+        var startmenu = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("Images/startscherm.png") })
 
         var pressSpace = new THREE.Mesh(startGeo, startmenu);
-        
-        pressSpace.position.set(-600,-510,-500);
+
+        pressSpace.position.set(-600, -510, -500);
         pressSpace.rotation.y = Math.PI / 2;
         scene.add(pressSpace);
 
@@ -372,14 +412,14 @@ window.onload = function () {
         // var resetspace = new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("images/spaceinvaders.png")})
 
         // var logo = new THREE.Mesh(spaceGeo, resetspace);
-        
+
         // logo.position.set(-600,-500,-500);
         // logo.rotation.y = Math.PI /2;
         // scene.add(logo);
 
 
     }
-    
+
     init();
     wall = IncreaseDifficulty(difficulty);
     console.log(wall);

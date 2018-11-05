@@ -17,30 +17,6 @@ var meshWall3 = Physijs.createMaterial(
 var geo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
 //#endregion
 
-//#region Obstakels
-function BuildAWall(amount, x, z, wall) {
-    for (var i = 0; i < 10; i++) {
-        var wallPiece = new Physijs.BoxMesh(geo, meshWall, 0);
-
-        if (i == amount) {
-            z += 4;
-            continue;
-        }
-        if (i == amount + 1) {
-            z += 4;
-            continue;
-        }
-        if (i == amount - 1 && amount == 9) {
-            z += 4;
-            continue;
-        }
-        wallPiece.position.set(x, 8.5, z + 7);
-
-        wall.add(wallPiece);
-        z += 4;
-    }
-}
-
 function WallOne(x, z, wall) {
     for (var j = 0.5; j <= 18; j += 2.5) {
         for (var i = 6; i <= 45; i += 2.5) {
@@ -313,18 +289,15 @@ function WallTen(x, z, wall) {
 function IncreaseDifficulty(difficulty) {
     var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({
         color: 0xFFFFFF
-    }));
-    wall.position.set((-100 * (difficulty - 1)) - 25, 0, -20);
+    }), 0);
+    wall.position.set((-75 * (difficulty - 1)) -25, 0, -20);
     var z = 20;
 
     for (var i = 0; i < difficulty; i++) {
-        var random = Math.ceil(Math.random() * 11);
-        var x = (-50 * i) * -1;
+        var random = Math.ceil(Math.random() * 10);
+        var x = (-75 * i) * -1;
 
         switch (random) {
-            case 1:
-                BuildAWall(Math.ceil(Math.random() * 9), x, z, wall);
-                break;
             case 2:
                 WallOne(x, z, wall);
                 break;
@@ -352,7 +325,7 @@ function IncreaseDifficulty(difficulty) {
             case 10:
                 WallNine(x, z, wall);
                 break;
-            case 11:
+            case 1:
                 WallTen(x, z, wall);
                 break;
         }
