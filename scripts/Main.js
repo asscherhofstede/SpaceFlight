@@ -16,18 +16,15 @@ window.onload = function () {
         }
     );
 
-    var menu = false;
-
+    //#region Variabelen
     var spaceshipModel = new THREE.Group();
-    var wall;
     var death = false;
     var menu = false;
-    var borderBottom, borderLeft, borderRight;
     var difficultyLast = 1;
     var difficultyNow = 1;
     var difficulty = 1;
 
-    var audio, camera, group, cameraControls, hitbox, deathPlane, resetGame;
+    var wall, camera, hitbox, deathPlane, resetGame, borderBottom, borderLeft, borderRight, borderTop;
 
     //gamevars
     var pause = false;
@@ -36,6 +33,8 @@ window.onload = function () {
     //spelerscore
     var playerScore = 1;
     var a = 1;
+    //#endregion
+
     function updateScore() {
         a += 0.25;
         playerScore = Math.round(a);
@@ -96,23 +95,10 @@ window.onload = function () {
 
         //#region borders
         var borderGeo = new THREE.BoxGeometry(500, 20, 10);
-        var borderMat = Physijs.createMaterial(
-            new THREE.MeshBasicMaterial({ color: 0x00FFFF }),
-            .8, // high friction
-            .3 // low restitution
-        );
+        var borderMat = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
-        borderRight = new Physijs.BoxMesh(
-            borderGeo,
-            borderMat,
-            0
-        );
-
-        borderLeft = new Physijs.BoxMesh(
-            borderGeo,
-            borderMat,
-            0
-        );
+        borderRight = new THREE.Mesh(borderGeo, borderMat);
+        borderLeft = new THREE.Mesh(borderGeo, borderMat);
 
         borderRight.position.set(0, 9.5, 0);
         borderLeft.position.set(0, 9.5, 50);
@@ -136,20 +122,9 @@ window.onload = function () {
         var geometry = new THREE.BoxGeometry(500, 50, 0.1);
         var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
-        borderBottom = new Physijs.BoxMesh(
-            geometry,
-            material,
-            0
-        );
+        borderBottom = new THREE.Mesh(geometry, borderMat);
+        borderTop = new THREE.Mesh(geometry, borderMat);
 
-        var borderTop = new Physijs.BoxMesh(
-            geometry,
-            material,
-            0
-        );
-
-        //var borderBottom = new THREE.Mesh(geometry, material);
-        //var borderTop = new THREE.Mesh(geometry, material);
         borderBottom.rotation.x = Math.PI / 2.0;
         borderTop.rotation.x = Math.PI / 2.0;
 
@@ -206,15 +181,6 @@ window.onload = function () {
     };
 
     function animate() {
-        //console.log("credits");
-        //console.log("Kevin visser the Paper boy");
-        //console.log("Sander Beijaard the pineapple/robot");
-        //console.log("Adriaan Beenen f3001 man");
-        //console.log("Asscher Hofstede the pineapple hater");
-
-
-        setTimeout(function () {
-
             requestAnimationFrame(animate);
 
             if (!menu && !death /* && !pause*/) {
@@ -242,6 +208,8 @@ window.onload = function () {
                     scene.add(wall);
                 }
 
+                //Na elke 200 punten word de moeilijkheidsgraad 1 omhoog gedaan(er spawnen meer obstakels)
+                //en de kleur van de border verandert in een random andere kleur
                 if (playerScore % 200 == 0) {
                     difficultyLast++;
                     if (difficultyLast == (difficultyNow + 4)) {
@@ -276,19 +244,12 @@ window.onload = function () {
                 }
             }
 
-
-        });
-
         renderer.render(scene, camera);
     }
 
     function spaceship() {
         //#region hitbox
-        var mat = Physijs.createMaterial(
-            new THREE.MeshBasicMaterial({ color: 0xfff }),
-            .6, // medium friction
-            .3 // low restitution
-        );
+        var mat = Physijs.createMaterial(new THREE.MeshBasicMaterial({ color: 0xfff }), 0.6, 0.3);
 
         hitbox = new Physijs.BoxMesh(new THREE.BoxGeometry(2, 0.4, .8), mat, 1);
 
@@ -394,6 +355,7 @@ window.onload = function () {
         document.body.appendChild(text2);
 
     }
+
     function Menu() {
         menu = true;
 
@@ -407,17 +369,6 @@ window.onload = function () {
         pressSpace.position.set(-600, -510, -500);
         pressSpace.rotation.y = Math.PI / 2;
         scene.add(pressSpace);
-
-        // var spaceGeo = new THREE.PlaneGeometry(50, 15);
-        // var resetspace = new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("images/spaceinvaders.png")})
-
-        // var logo = new THREE.Mesh(spaceGeo, resetspace);
-
-        // logo.position.set(-600,-500,-500);
-        // logo.rotation.y = Math.PI /2;
-        // scene.add(logo);
-
-
     }
 
     init();

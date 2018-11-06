@@ -1,4 +1,4 @@
-//bewegingsvariabele
+//#region Variabelen
 var moveRight = false;
 var moveLeft = false;
 var moveUp = false;
@@ -19,6 +19,7 @@ var curRotZ = 0;
 var noseTurnSpeed = 0.03;
 var pause = 1;
 var rotationSpeed = 0.05;
+//#endregion
 
 document.addEventListener("keydown", onDocumentKeyDown, false);
 document.addEventListener("keyup", onDocumentKeyUp, false);
@@ -72,7 +73,6 @@ function onDocumentKeyUp(event) {
 
 
 function AnimateSpaceshipM(spaceshipModel, camera){
-    //console.log(moveLeft);
     if (moveRight == true) {
         //Kijken of je bij de rechter border bent
         if(spaceshipModel.position.z >= 7.5){
