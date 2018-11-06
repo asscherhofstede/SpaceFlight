@@ -183,7 +183,7 @@ window.onload = function () {
     function animate() {
             requestAnimationFrame(animate);
 
-            if (!menu && !death /* && !pause*/) {
+            if (!menu && !death) {
                 hitbox.__dirtyPosition = true;
                 hitbox.__dirtyRotation = true;
 
