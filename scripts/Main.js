@@ -72,10 +72,8 @@ window.onload = function () {
     function init() {
         // camera
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 150);
-        //cameraControls = new THREE.OrbitControls(camera);
         camera.position.set(65, 7, 20);
         camera.rotation.y = 180 * (Math.PI / 360);
-        //cameraControls.update();
         scene.add(camera);
 
         document.addEventListener("keydown", onDocumentKeyDown, false);
@@ -94,45 +92,41 @@ window.onload = function () {
 
 
         //#region borders
-        var borderGeo = new THREE.BoxBufferGeometry(500, 20, 10);
+        var borderGeoLR = new THREE.BoxBufferGeometry(500, 20, 10);
+        var borderGeoTB = new THREE.BoxBufferGeometry(500, 50, 0.1);
+
         var borderMat = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
-        borderRight = new THREE.Mesh(borderGeo, borderMat);
-        borderLeft = new THREE.Mesh(borderGeo, borderMat);
-
+        //Maak alle muren aan
+        borderRight = new THREE.Mesh(borderGeoLR, borderMat);
+        borderLeft = new THREE.Mesh(borderGeoLR, borderMat);
+        borderBottom = new THREE.Mesh(borderGeoTB, borderMat);
+        borderTop = new THREE.Mesh(borderGeoTB, borderMat);   
+        
         borderRight.position.set(0, 9.5, 0);
         borderLeft.position.set(0, 9.5, 50);
+        borderBottom.position.set(0, 19.6, 25);
+        borderTop.position.set(0, -.6, 25);
+        
+        borderBottom.rotation.x = Math.PI / 2.0;
+        borderTop.rotation.x = Math.PI / 2.0;
 
-        var edgeRight = new THREE.EdgesGeometry(borderGeo);
-        var lineRight = new THREE.LineSegments(edgeRight, new THREE.LineBasicMaterial({ color: 0x000000 }));
-        lineRight.position.set(100, 9.5, 0.1);
+        //Maak een zwarte rand rond de zijmuren
+        var edge = new THREE.EdgesGeometry(borderGeoLR);
 
-        var edgeLeft = new THREE.EdgesGeometry(borderGeo);
-        var lineLeft = new THREE.LineSegments(edgeLeft, new THREE.LineBasicMaterial({ color: 0x000000 }));
+        var lineRight = new THREE.LineSegments(edge, new THREE.LineBasicMaterial({ color: 0x000000 }));
+        var lineLeft = new THREE.LineSegments(edge, new THREE.LineBasicMaterial({ color: 0x000000 }));
+        
         lineLeft.position.set(100, 9.5, 49.9);
-
-
+        lineRight.position.set(100, 9.5, 0.1);
+        
+        //Zet alle muren in de scene
+        scene.add(borderBottom);
+        scene.add(borderTop);
         scene.add(borderRight);
         scene.add(borderLeft);
         scene.add(lineRight);
         scene.add(lineLeft);
-
-
-
-        var geometry = new THREE.BoxBufferGeometry(500, 50, 0.1);
-        var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
-
-        borderBottom = new THREE.Mesh(geometry, borderMat);
-        borderTop = new THREE.Mesh(geometry, borderMat);
-
-        borderBottom.rotation.x = Math.PI / 2.0;
-        borderTop.rotation.x = Math.PI / 2.0;
-
-        borderBottom.position.set(0, 19.6, 25);
-        borderTop.position.set(0, -.6, 25);
-
-        scene.add(borderBottom);
-        scene.add(borderTop);
         //#endregion
 
 
@@ -202,7 +196,7 @@ window.onload = function () {
 
             if (wall.position.x > camera.position.x + 5) {
                 scene.remove(wall);
-                wall = null;
+                //wall = null;
 
                 wall = IncreaseDifficulty(difficulty);
                 scene.add(wall);
@@ -210,7 +204,7 @@ window.onload = function () {
 
             //Na elke 200 punten word de moeilijkheidsgraad 1 omhoog gedaan(er spawnen meer obstakels)
             //en de kleur van de border verandert in een random andere kleur
-            if (playerScore % 200 == 0) {
+            if (playerScore % 500 == 0) {
                 difficultyLast++;
                 if (difficultyLast == (difficultyNow + 4)) {
                     difficultyNow = difficultyLast;
@@ -318,7 +312,7 @@ window.onload = function () {
     function YouDied() {
         a = 0;
         pause = 0;
-        console.log(playerScore);
+        console.log(wall);
         camera.position.set(1000, 1000, 1000);
         var deathGeo = new THREE.PlaneBufferGeometry(80, 40);
         var deathMaterial = new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Images/YouDied.jpg") });
@@ -372,7 +366,6 @@ window.onload = function () {
 
     init();
     wall = IncreaseDifficulty(difficulty);
-    console.log(wall);
     scene.add(wall);
     animate();
 };
