@@ -94,7 +94,7 @@ window.onload = function () {
 
 
         //#region borders
-        var borderGeo = new THREE.BoxGeometry(500, 20, 10);
+        var borderGeo = new THREE.BoxBufferGeometry(500, 20, 10);
         var borderMat = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
         borderRight = new THREE.Mesh(borderGeo, borderMat);
@@ -119,7 +119,7 @@ window.onload = function () {
 
 
 
-        var geometry = new THREE.BoxGeometry(500, 50, 0.1);
+        var geometry = new THREE.BoxBufferGeometry(500, 50, 0.1);
         var material = new THREE.MeshBasicMaterial({ color: 0x00FFFF, side: THREE.DoubleSide });
 
         borderBottom = new THREE.Mesh(geometry, borderMat);
@@ -181,69 +181,68 @@ window.onload = function () {
     };
 
     function animate() {
-            requestAnimationFrame(animate);
+        requestAnimationFrame(animate);
 
-            if (!menu && !death) {
-                hitbox.__dirtyPosition = true;
-                hitbox.__dirtyRotation = true;
+        if (!menu && !death) {
+            hitbox.__dirtyPosition = true;
+            hitbox.__dirtyRotation = true;
 
-                hitbox.position.set(spaceshipModel.position.x, spaceshipModel.position.y, spaceshipModel.position.z);
-                hitbox.rotation.set(spaceshipModel.rotation.x, spaceshipModel.rotation.y, spaceshipModel.rotation.z);
+            hitbox.position.set(spaceshipModel.position.x, spaceshipModel.position.y, spaceshipModel.position.z);
+            hitbox.rotation.set(spaceshipModel.rotation.x, spaceshipModel.rotation.y, spaceshipModel.rotation.z);
 
-                updateScore();
-                updateHighscore();
-                if (gameSpeed < 0.50) {
-                    gameSpeed += 0.00003;
-                }
-
-                wall.position.x += gameSpeed;
-
-                wall.__dirtyPosition = true;
-
-                if (wall.position.x > camera.position.x + 5) {
-                    scene.remove(wall);
-                    wall = null;
-
-                    wall = IncreaseDifficulty(difficulty);
-                    scene.add(wall);
-                }
-
-                //Na elke 200 punten word de moeilijkheidsgraad 1 omhoog gedaan(er spawnen meer obstakels)
-                //en de kleur van de border verandert in een random andere kleur
-                if (playerScore % 200 == 0) {
-                    difficultyLast++;
-                    if (difficultyLast == (difficultyNow + 4)) {
-                        difficultyNow = difficultyLast;
-                        difficulty++;
-                    }
-                    var targetColor = new THREE.Color(Math.random() * 0xffffff);
-                    TweenMax.to(borderBottom.material.color, 2, {
-                        r: targetColor.r,
-                        g: targetColor.g,
-                        b: targetColor.b
-                    });
-                    TweenMax.to(borderLeft.material.color, 2, {
-                        r: targetColor.r,
-                        g: targetColor.g,
-                        b: targetColor.b
-                    });
-                }
-
-                scene.simulate();
-                AnimateSpaceshipM(spaceshipModel, camera);
-
+            updateScore();
+            updateHighscore();
+            if (gameSpeed < 0.50) {
+                gameSpeed += 0.00003;
             }
 
-            else if (death) {
-                if (deathPlane.position.x < 925 && deathPlane.material.opacity < 1) {
-                    deathPlane.material.opacity += 0.001;
-                    deathPlane.position.x += 0.01;
-                }
-                else {
-                    resetGame.material.opacity = 1;
-                }
+            wall.position.x += gameSpeed;
+
+            wall.__dirtyPosition = true;
+
+            if (wall.position.x > camera.position.x + 5) {
+                scene.remove(wall);
+                wall = null;
+
+                wall = IncreaseDifficulty(difficulty);
+                scene.add(wall);
             }
 
+            //Na elke 200 punten word de moeilijkheidsgraad 1 omhoog gedaan(er spawnen meer obstakels)
+            //en de kleur van de border verandert in een random andere kleur
+            if (playerScore % 200 == 0) {
+                difficultyLast++;
+                if (difficultyLast == (difficultyNow + 4)) {
+                    difficultyNow = difficultyLast;
+                    difficulty++;
+                }
+                var targetColor = new THREE.Color(Math.random() * 0xffffff);
+                TweenMax.to(borderBottom.material.color, 2, {
+                    r: targetColor.r,
+                    g: targetColor.g,
+                    b: targetColor.b
+                });
+                TweenMax.to(borderLeft.material.color, 2, {
+                    r: targetColor.r,
+                    g: targetColor.g,
+                    b: targetColor.b
+                });
+            }
+
+            scene.simulate();
+            AnimateSpaceshipM(spaceshipModel, camera);
+
+        }
+
+        else if (death) {
+            if (deathPlane.position.x < 925 && deathPlane.material.opacity < 1) {
+                deathPlane.material.opacity += 0.001;
+                deathPlane.position.x += 0.01;
+            }
+            else {
+                resetGame.material.opacity = 1;
+            }
+        }
         renderer.render(scene, camera);
     }
 
@@ -251,10 +250,10 @@ window.onload = function () {
         //#region hitbox
         var mat = Physijs.createMaterial(new THREE.MeshBasicMaterial({ color: 0xfff }), 0.6, 0.3);
 
-        hitbox = new Physijs.BoxMesh(new THREE.BoxGeometry(2, 0.4, .8), mat, 1);
+        hitbox = new Physijs.BoxMesh(new THREE.BoxBufferGeometry(2, 0.4, .8), mat, 1);
 
-        var hitboxBack = new Physijs.BoxMesh(new THREE.BoxGeometry(0, 0.5, 2.4), mat);
-        var hitboxUpDown = new Physijs.BoxMesh(new THREE.BoxGeometry(1, 1, 1), mat);
+        var hitboxBack = new Physijs.BoxMesh(new THREE.BoxBufferGeometry(0, 0.5, 2.4), mat);
+        var hitboxUpDown = new Physijs.BoxMesh(new THREE.BoxBufferGeometry(1, 1, 1), mat);
 
         hitbox.position.set(85, 5, 15);
         hitboxBack.position.set(1, 0, 0);
@@ -321,7 +320,7 @@ window.onload = function () {
         pause = 0;
         console.log(playerScore);
         camera.position.set(1000, 1000, 1000);
-        var deathGeo = new THREE.PlaneGeometry(80, 40);
+        var deathGeo = new THREE.PlaneBufferGeometry(80, 40);
         var deathMaterial = new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Images/YouDied.jpg") });
 
         deathPlane = new THREE.Mesh(deathGeo, deathMaterial);
@@ -331,7 +330,7 @@ window.onload = function () {
         deathPlane.material.opacity = 0;
         scene.add(deathPlane);
 
-        var resetGeo = new THREE.PlaneGeometry(65, 12);
+        var resetGeo = new THREE.PlaneBufferGeometry(65, 12);
         var resetMat = new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Images/Restart.png") })
         resetGame = new THREE.Mesh(resetGeo, resetMat);
         resetGame.position.set(950, 980, 999);
@@ -361,7 +360,7 @@ window.onload = function () {
 
         camera.position.set(-500, -500, -500);
 
-        var startGeo = new THREE.PlaneGeometry(240, 170);
+        var startGeo = new THREE.PlaneBufferGeometry(240, 170);
         var startmenu = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("Images/startscherm.png") })
 
         var pressSpace = new THREE.Mesh(startGeo, startmenu);

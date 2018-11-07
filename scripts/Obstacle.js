@@ -5,7 +5,7 @@ var meshWall2 = Physijs.createMaterial(new THREE.MeshBasicMaterial({map: new THR
 
 var meshWall3 = Physijs.createMaterial(new THREE.MeshBasicMaterial({map: new THREE.TextureLoader().load("textures/Obstacle/test3.png")}), 0, 0);
 
-var geo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
+var geo = new THREE.BoxBufferGeometry(2.5, 2.5, 2.5);
 //#endregion
 
 //#region Obstakels
@@ -279,7 +279,7 @@ function WallTen(x, z, wall) {
 
 //Naar mate je verder komt in het spel moeten er meerder walls spawnen.
 function IncreaseDifficulty(difficulty) {
-    var wall = new Physijs.BoxMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}), 0);
+    var wall = new Physijs.BoxMesh(new THREE.BoxBufferGeometry(1, 1, 1), new THREE.MeshBasicMaterial({color: 0xFFFFFF}), 0);
     wall.position.set((-75 * (difficulty - 1)) -25, 0, -20);
     
     var z = 20;
