@@ -285,7 +285,7 @@ function IncreaseDifficulty(difficulty) {
     var z = 20;
 
     for (var i = 0; i < difficulty; i++) {
-        var random = 3;// Math.ceil(Math.random() * 10);
+        var random = Math.ceil(Math.random() * 10);
         var x = (-75 * i) * -1;
 
         switch (random) {
