@@ -26,18 +26,18 @@ document.addEventListener("keyup", onDocumentKeyUp, false);
 
 function onDocumentKeyDown(event) {
     switch (event.which){
-        case 37:
+        case 65:
             moveLeft = true;
             rotateLeft = false;
             break;
-        case 38:
+        case 87:
             moveUp = true;
             break;
-        case 39:
+        case 68:
             rotateRight = false;
             moveRight = true;
             break;
-        case 40:
+        case 83:
             moveDown = true;
             break;
         case 80:
@@ -52,19 +52,19 @@ function onDocumentKeyDown(event) {
 
 function onDocumentKeyUp(event) {
     switch (event.which){
-       case 37:
+       case 65:
            moveLeft = false;
            stabiliseerSchip();
            break;
-       case 38:
+       case 87:
            moveUp = false;
            stabiliseerSchip();
            break;
-       case 39:
+       case 68:
            moveRight = false;
            stabiliseerSchip();
            break;
-       case 40:
+       case 83:
            moveDown = false;
            stabiliseerSchip();
            break;

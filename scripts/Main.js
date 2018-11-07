@@ -204,12 +204,8 @@ window.onload = function () {
 
             //Na elke 200 punten word de moeilijkheidsgraad 1 omhoog gedaan(er spawnen meer obstakels)
             //en de kleur van de border verandert in een random andere kleur
-            if (playerScore % 500 == 0) {
-                difficultyLast++;
-                if (difficultyLast == (difficultyNow + 4)) {
-                    difficultyNow = difficultyLast;
-                    difficulty++;
-                }
+            if (playerScore % 200 == 0) {
+                
                 var targetColor = new THREE.Color(Math.random() * 0xffffff);
                 TweenMax.to(borderBottom.material.color, 2, {
                     r: targetColor.r,
@@ -221,6 +217,14 @@ window.onload = function () {
                     g: targetColor.g,
                     b: targetColor.b
                 });
+            }
+
+            if (playerScore % 500 == 0) {
+                difficultyLast++;
+                if (difficultyLast == (difficultyNow + 4)) {
+                    difficultyNow = difficultyLast;
+                    difficulty++;
+                }
             }
 
             scene.simulate();
